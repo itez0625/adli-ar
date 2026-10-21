@@ -5,7 +5,7 @@
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-family:sans-serif}
 video,#c{position:fixed;inset:0;width:100%;height:100%}video{object-fit:cover}
-#hud{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;padding:6px 8px;padding-top:calc(6px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.55);font-size:14px}
+#hud{position:fixed;top:0;left:0;right:0;display:none;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;padding:6px 8px;padding-top:calc(6px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.55);font-size:14px}
 button{font-size:15px;border:0;border-radius:10px;padding:9px 13px;background:#1e88e5;color:#fff}
 #hud button{padding:6px 9px;font-size:13px}button.g{background:#2e7d32}button.r{background:#757575}
 #panel{position:fixed;left:0;right:0;bottom:0;display:none;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));background:rgba(20,20,20,.95);border-radius:16px 16px 0 0}
@@ -13,9 +13,10 @@ button{font-size:15px;border:0;border-radius:10px;padding:9px 13px;background:#1
 .ov{position:fixed;inset:0;display:flex;flex-direction:column;gap:10px;padding:18px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.88);overflow:auto;box-sizing:border-box;line-height:1.4;font-size:15px}
 .ov h2{margin:0}label{display:block}select,textarea{width:100%;font-size:16px;margin-top:4px;box-sizing:border-box}
 table{border-collapse:collapse}td,th{border:1px solid #888;padding:5px;vertical-align:top;font-size:14px}
+#ms{position:fixed;left:10px;right:10px;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:none;padding:10px;border-radius:10px;background:rgba(0,0,0,.8);text-align:center}button.on{background:#f9a825;color:#000}
 </style></head><body>
 <video id="v" playsinline muted autoplay></video><canvas id="c"></canvas>
-<div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="fin">Bitir</button></span></div>
+<div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="bm">Ölç</button> <button id="bv">Üstten</button> <button id="fin">Bitir</button></span></div><div id="ms"></div>
 <div id="panel"><h3 id="pt"></h3><p id="pi"></p><button id="uv" class="g">UV / Luminol ile incele</button> <button id="px" class="r">Kapat</button></div>
 <div id="start" class="ov" style="justify-content:center">
 <h2>Çalışma Odasındaki Sır</h2>
@@ -71,12 +72,16 @@ H.forEach((h,i)=>{const az=h[2]*Rd,el=h[3]*Rd,d=h[4];
 const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(h[0],LC[h[0][0]]),depthTest:false}));
 s.position.set(d*Math.cos(el)*Math.sin(az),d*Math.sin(el),-d*Math.cos(el)*Math.cos(az));
 s.scale.setScalar(d*.16);s.userData.i=i;scene.add(s);sp.push(s)});
+const grid=new THREE.GridHelper(8,8,0x888888,0x444444);grid.position.y=-1;grid.visible=false;scene.add(grid);
+const me=new THREE.Sprite(new THREE.SpriteMaterial({map:tex('Sen','#6a1b9a'),depthTest:false}));me.scale.setScalar(1.2);me.visible=false;scene.add(me);
+function setK(k){sp.forEach(x=>x.scale.setScalar(x.position.length()*.16*k))}
+let tv=false,mm=false,mA=-1,mLine=null;
 function laser(){if(line)return;const a=sp[4].position,t=sp[1].position;
 line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,t]),new THREE.LineBasicMaterial({color:0xff0000,depthTest:false}));scene.add(line)}
 let a0=null,ang=null,t0=0,run=false,sel=-1;
 addEventListener('deviceorientation',e=>{if(e.alpha==null)return;if(a0===null)a0=e.alpha;ang=e});
 const z=new THREE.Vector3(0,0,1),eu=new THREE.Euler(),q1=new THREE.Quaternion(-Math.sqrt(.5),0,0,Math.sqrt(.5)),q0=new THREE.Quaternion();
-function orient(){if(!ang)return;eu.set(ang.beta*Rd,(ang.alpha-a0)*Rd,-ang.gamma*Rd,'YXZ');
+function orient(){if(tv||!ang)return;eu.set(ang.beta*Rd,(ang.alpha-a0)*Rd,-ang.gamma*Rd,'YXZ');
 cam.quaternion.setFromEuler(eu).multiply(q1);
 cam.quaternion.multiply(q0.setFromAxisAngle(z,-(screen.orientation?screen.orientation.angle:(window.orientation||0))*Rd))}
 (function loop(){requestAnimationFrame(loop);orient();ren.render(scene,cam)})();
@@ -92,9 +97,20 @@ if(i===4)laser();$('panel').style.display='block';hud()}
 const rc=new THREE.Raycaster();
 $('c').addEventListener('click',ev=>{if(!run)return;
 rc.setFromCamera({x:ev.clientX/innerWidth*2-1,y:-(ev.clientY/innerHeight)*2+1},cam);
-const h=rc.intersectObjects(sp);if(h.length)show(h[0].object.userData.i)});
+const h=rc.intersectObjects(sp);if(!h.length)return;const i=h[0].object.userData.i;if(mm)measure(i);else show(i)});
 $('px').onclick=()=>{$('panel').style.display='none';sel=-1};
 $('uv').onclick=()=>{uvd.add(sel);show(sel)};
+function measure(i){const ms=$('ms');ms.style.display='block';
+if(mA<0||mA===i){mA=i;ms.textContent='Başlangıç: '+H[i][0]+'. İkinci delile dokun.';return}
+const a=sp[mA].position,b=sp[i].position,d=a.distanceTo(b);
+if(mLine)scene.remove(mLine);
+mLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),new THREE.LineBasicMaterial({color:0xffeb3b,depthTest:false}));scene.add(mLine);
+ms.textContent=H[mA][0]+' ↔ '+H[i][0]+': '+d.toFixed(2).replace('.',',')+' m (sanal ölçek)';mA=-1}
+$('bm').onclick=()=>{mm=!mm;$('bm').classList.toggle('on',mm);mA=-1;$('panel').style.display='none';const ms=$('ms');
+if(mm){ms.style.display='block';ms.textContent='Ölçüm modu: iki delile sırayla dokun.'}else{ms.style.display='none';if(mLine){scene.remove(mLine);mLine=null}}};
+$('bv').onclick=()=>{tv=!tv;$('bv').textContent=tv?'AR':'Üstten';grid.visible=me.visible=tv;$('v').style.display=tv?'none':'block';
+if(tv){cam.position.set(0,11,0);cam.up.set(0,0,-1);cam.lookAt(0,0,0);setK(3.5)}
+else{cam.position.set(0,0,0);cam.up.set(0,1,0);setK(1)}};
 function ov(html){const o=$('ov2');o.innerHTML=html;o.style.display='flex';return o}
 function closeBtn(){return '<button class="r" onclick="document.getElementById(\'ov2\').style.display=\'none\'">Kapat</button>'}
 $('bf').onclick=()=>ov(DOSYA+closeBtn());
