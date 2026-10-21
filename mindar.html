@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MindAR Testi</title>
+<style>
+html,body{margin:0;height:100%;background:#000;color:#fff;font-family:sans-serif}
+#st{position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.65);font-size:13px;line-height:1.4;pointer-events:none}
+#box{position:fixed;inset:0;overflow:hidden}
+#intro{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:20px;background:#111;font-size:15px;line-height:1.4}
+button{font-size:18px;border:0;border-radius:12px;padding:14px;background:#1e88e5;color:#fff}
+a{color:#80cbc4}
+</style></head><body>
+<div id="intro">
+<h2>MindAR Testi</h2>
+<p>1) Bu sayfayı bir telefonda aç.<br>2) <a href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card-example/card.png" target="_blank">Hedef görseli</a> başka bir ekranda (ikinci telefon ya da bilgisayar) tam ekran aç veya yazdır.<br>3) Aşağıdaki düğmeye bas, kamera iznini ver ve kamerayı hedef görsele tut.<br>Hedef görülünce üzerinde kırmızı bir küp çıkmalı.</p>
+<button id="go">Testi Başlat</button></div>
+<div id="st" style="display:none"></div>
+<div id="box"></div>
+<script>
+const SRC={
+ m1:['https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js'],
+ af:['https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js','https://cdnjs.cloudflare.com/ajax/libs/aframe/1.2.0/aframe.min.js'],
+ m2:['https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js']};
+const MIND='https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card-example/card.mind';
+const st=document.getElementById('st'),L=[];
+function say(t){L.push(t);st.innerHTML=L.slice(-8).join('<br>')}
+function load(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(u);document.head.appendChild(s)})}
+async function first(name){for(const u of SRC[name]){try{await load(u);return u}catch(e){}}throw new Error(name+' yüklenemedi')}
+document.getElementById('go').onclick=async()=>{
+ document.getElementById('intro').style.display='none';st.style.display='block';
+ say('Sayfa: '+navigator.userAgent.slice(0,60));
+ try{
+  say('MindAR çekirdeği yükleniyor...');await first('m1');
+  say('A-Frame yükleniyor...');const u=await first('af');say('A-Frame '+(window.AFRAME?AFRAME.version:'?')+' ('+(u.includes('jsdelivr')?'jsDelivr':'cdnjs')+')');
+  say('MindAR-AFrame yükleniyor...');await first('m2');
+  say('Kütüphaneler tamam, kamera açılıyor...');
+ }catch(e){say('HATA: '+e.message);return}
+ document.getElementById('box').innerHTML=
+ '<a-scene mindar-image="imageTargetSrc: '+MIND+';" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">'
+ +'<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>'
+ +'<a-entity id="tg" mindar-image-target="targetIndex: 0"><a-box position="0 0 0.15" scale="0.3 0.3 0.3" color="#e53935"></a-box></a-entity></a-scene>';
+ const sc=document.querySelector('a-scene'),tg=document.getElementById('tg');
+ sc.addEventListener('arReady',()=>say('Kamera ve takip HAZIR. Hedefi göster.'));
+ sc.addEventListener('arError',()=>say('HATA: kamera/MindAR başlatılamadı (izin? HTTPS?)'));
+ tg.addEventListener('targetFound',()=>say('HEDEF BULUNDU'));
+ tg.addEventListener('targetLost',()=>say('hedef kayboldu'));
+};
+</script></body></html>
