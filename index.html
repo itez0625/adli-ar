@@ -24,6 +24,10 @@ body.big .ov,body.big #panel,body.big #ms{font-size:19px}body.big td,body.big th
 <h2>Çalışma Odasındaki Sır</h2>
 <p>Bu vaka, kişiler ve olaylar tamamen kurgusaldır; eğitim amaçlıdır.</p>
 <p>Telefonu yavaşça çevirerek odayı tara, harf-numaralı noktalara dokun. <b>Dosya</b> düğmesinde vaka bilgisi, <b>sorgu</b> ve <b>defter</b> var; sorgu soruları ilgili delili incelediğinde açılır. Adli Tıp raporu yeterli delil incelenince hazır olur. İşaretler kayarsa <b>Hizala</b> ile ekranın ortasını odanın önüne çevirip sıfırla. <b>Bitir</b> ile raporu doldur.</p>
+<label>Öğrenci kodu <input id="kod" maxlength="12" autocomplete="off" style="width:100%;font-size:16px;box-sizing:border-box;margin-top:4px"></label>
+<label>Cinsiyet (isteğe bağlı) <select id="cin"><option value="">Belirtmek istemiyorum</option><option>Kadın</option><option>Erkek</option></select></label>
+<label id="adw" style="display:none">Ad Soyad <input id="ad" maxlength="60" autocomplete="off" style="width:100%;font-size:16px;box-sizing:border-box;margin-top:4px"></label>
+<label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="onam" style="width:auto;margin-top:4px"><span id="onamt"></span></label>
 <label>Seviye <select id="sl"><option value="k">Kolay (ipuçlu)</option><option value="z">Zor (ipucu yok, 10 dk)</option></select></label><button id="go">Başla</button><p id="msg"></p></div>
 <div id="ov2" class="ov" style="display:none"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -69,6 +73,31 @@ const SORGU=[["Melis Yılmaz",[["Gece ne yaptınız?","Kahveyi yapıp eşime ver
 const RUB=[["Sahnelenmiş cinayet / intihar değil",/sahne|kurgu|intihar\s*değil|intihar\s*de|cinayet|öldürül/i],["Solak maktul ve sağ el çelişkisi",/solak|sol\s*el/i],["GSR (atış artığı) yok",/gsr|atış\s*artığ|barut/i],["Ölüm lekeleri / ceset taşınması",/leke|livor|taşın|taşıd|yer\s*değiş|sırtüstü/i],["Kapı dışarıdan kilitli",/dışarıdan|dışardan|anahtar|kilitli/i],["Can Berk’i bağlayan izler (kolu, kadeh, imza)",/parmak|dna|kadeh|kamera|23:45|zaman\s*damga|can\s*berk/i],["Sedatif / kahve",/zolpidem|uyku|sedatif|ilaç|kahve/i]];
 const LV=new URLSearchParams(location.search).get('l')==='z'?'z':'k';
 const HINT={A:'Nesnelerin konumuna ve kime ait olduğuna bak.',B:'Yörünge ve açı neyi gösteriyor?',C:'İzlerin sahibini ve zamanını karşılaştır.',D:'Zaman damgalarını ifadelerle karşılaştır.'};
+const ASK_NAME=new URLSearchParams(location.search).get('ad')==='1';
+const FORM={url:'',kod:'',cins:'',ad:'',ozet:'',ger:''}; // Google Forms bağlantısı Adım 6b'de doldurulacak
+const TA=[["Ölümden sonra kanın yer çekimiyle vücudun alt bölgelerinde birikip morumsu leke yapmasına ne denir?",["Rigor mortis","Livor mortis","Algor mortis","Otoliz"],1],
+["Atış artığı (GSR) analizi neyi araştırır?",["Parmak izini","DNA profilini","Mürekkep türünü","Barut kalıntısını (antimon, baryum, kurşun)"],3],
+["Latent parmak izi ne demektir?",["Çıplak gözle görülen iz","Kana bulaşmış iz","Çıplak gözle görülmeyen, özel yöntemle ortaya çıkarılan iz","Ayakkabı izi"],2],
+["Olay yerinde bir delil yerinden alınmadan önce ilk yapılması gereken nedir?",["Yerinde fotoğraflayıp belgelemek","Yıkamak","Hepsini tek torbaya koymak","Elle kaldırıp incelemek"],0],
+["Delil zinciri (chain of custody) neden önemlidir?",["Raporu kısaltır","Delilin kimin elinden geçtiğini belgeleyip bütünlüğünü kanıtlar","Delili hafifletir","Süreyi uzatır"],1],
+["Ölüm saatini tahmin ederken hangi bulgudan yararlanılır?",["Saç uzunluğu","Ayakkabı numarası","Vücut soğuması (algor mortis)","Kıyafet rengi"],2]];
+const TB=[["Ölümden sonra kasların kasılıp sertleşmesine ne denir?",["Livor mortis","Algor mortis","Rigor mortis","Otoliz"],2],
+["Latent parmak izini görünür hâle getirmek için hangisi kullanılır?",["Toz (pudra) ya da kimyasal ayıraç","Fotokopi","Soğuk su","Mıknatıs"],0],
+["Olay yerine ilk ulaşan görevli ne yapmalıdır?",["Eşyaları toplamak","Temizlik yapmak","Tanıkları göndermek","Yeri güvenlik altına alıp korumak"],3],
+["Kan ve kâğıt gibi farklı delillerin ayrı ambalajlanmasının nedeni nedir?",["Daha hafif taşımak","Çapraz bulaşmayı ve bozulmayı önlemek","Daha ucuz olması","Düzgün görünmesi"],1],
+["Dijital kayıttaki zaman damgası ne sağlar?",["Parmak izini ortaya çıkarır","Barut kalıntısı bulur","İşlemin ne zaman yapıldığını gösterir","DNA eşleştirir"],2],
+["Atış mesafesinin anlaşılmasında hangi bulgudan yararlanılabilir?",["Giysi veya deri üzerindeki barut kalıntısı dağılımı","Saç rengi","Ayakkabı numarası","Yaş"],0]];
+let ID={kod:'',cins:'',ad:''},FAB='A',PRE=0,POST=0;
+function runTest(arr,title,cb,set){ov('<h2>'+title+'</h2>'+arr.map((q,k)=>'<label>'+(k+1)+') '+q[0]+'<select id="t'+k+'"><option value="">Seç</option>'+q[1].map((x,j)=>'<option value="'+j+'">'+x+'</option>').join('')+'</select></label>').join('')+'<button id="tb">Tamamla</button>');
+$('tb').onclick=()=>{let n=0;arr.forEach((q,k)=>{const v=$('t'+k).value;if(v!==''&&+v===q[2])n++});set(n);cb()}}
+function preTest(cb){runTest(FAB==='A'?TA:TB,'Ön test',cb,n=>PRE=n)}
+function postTest(cb){runTest(FAB==='A'?TB:TA,'Son test',cb,n=>POST=n)}
+async function sendData(oz,ger){const el=$('snd'),row={kod:ID.kod,cins:ID.cins,ad:ID.ad,ozet:oz,ger:ger};
+const copy='<textarea rows="5" readonly style="width:100%;box-sizing:border-box">'+[ID.kod,ID.cins,ID.ad,oz].join('|')+'</textarea>';
+if(!FORM.url||!FORM.kod){el.innerHTML='Form henüz bağlı değil. Bu satırı kopyalayıp araştırmacıya ilet:<br>'+copy;return}
+const b=new URLSearchParams();b.set(FORM.kod,row.kod);b.set(FORM.cins,row.cins);if(ASK_NAME&&FORM.ad)b.set(FORM.ad,row.ad);b.set(FORM.ozet,row.ozet);b.set(FORM.ger,row.ger);
+try{await fetch(FORM.url,{method:'POST',mode:'no-cors',body:b});el.textContent='Sonuçların gönderildi (tarayıcı onay veremez; araştırmacı Forms’ta kontrol eder). Teşekkürler!'}
+catch(e){el.innerHTML='Gönderilemedi (internet?). Bu satırı kopyalayıp araştırmacıya ilet:<br>'+copy}}
 const $=id=>document.getElementById(id),Rd=Math.PI/180;
 const BK='ars'+LV;let best=null;try{best=localStorage.getItem(BK)}catch(e){}
 $('msg').textContent=best?'En iyi puanın: '+best+' / 100':'';
@@ -163,27 +192,31 @@ const TOUR=[['1/3 Odayı tara','Telefonu yavaşça çevir; işaretlere dokunarak
 function tour(n){if(n>=TOUR.length)return dosya(0);ov('<h2>'+TOUR[n][0]+'</h2><p>'+TOUR[n][1]+'</p><button onclick="tour('+(n+1)+')">'+(n<2?'İleri':'Vakaya başla')+'</button>')}
 $('bf').onclick=()=>dosya(0);
 $('ba').onclick=()=>{if(seen.size<NEED&&!labOk){beep(200);return ov('<h2>Rapor hazır değil</h2><p>Laboratuvar sonuçları için en az '+NEED+' delil incele (şu an '+seen.size+').</p>'+closeBtn())}labOk=true;ov(OTOPSI+closeBtn())};
-$('sl').value=LV;
-$('sl').onchange=()=>{location.search='?l='+$('sl').value};
+$('sl').value=LV;$('adw').style.display=ASK_NAME?'block':'none';$('onamt').textContent=ASK_NAME?'Bu çalışmaya gönüllü katılıyorum; verilerimin akademik amaçla kullanılmasını ve araştırmacıyla paylaşılmasını kabul ediyorum. (Taslak onam metni)':'Bu çalışmaya gönüllü katılıyorum; verilerimin akademik amaçla ve kimliğim belirtilmeden kullanılmasını kabul ediyorum. (Taslak onam metni)';
+$('sl').onchange=()=>{location.search='?l='+$('sl').value+(ASK_NAME?'&ad=1':'')};
 $('go').onclick=async()=>{const m=$('msg');
+const kod=$('kod').value.trim();if(kod.length<3){m.textContent='Öğrenci kodunu yaz (en az 3 karakter).';return}
+if(ASK_NAME&&!$('ad').value.trim()){m.textContent='Ad Soyad alanını doldur.';return}
+if(!$('onam').checked){m.textContent='Devam etmek için onam kutusunu işaretle.';return}
+ID={kod:kod,cins:$('cin').value,ad:ASK_NAME?$('ad').value.trim():''};FAB=([...kod].reduce((a,c)=>a+c.charCodeAt(0),0)%2===0)?'A':'B';
 try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
 const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){m.textContent='Sensör izni verilmedi.';return}}}
 catch(e){m.textContent='Sensör hatası: '+e.message;return}
 try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
 $('v').srcObject=s;await $('v').play()}catch(e){m.textContent='Kamera hatası: '+e.name;return}
-$('start').style.display='none';$('hud').style.display='flex';t0=Date.now();run=true;hud();setInterval(()=>run&&hud(),1000);tour(0)};
+$('start').style.display='none';preTest(()=>{$('hud').style.display='flex';t0=Date.now();run=true;hud();setInterval(()=>run&&hud(),1000);tour(0)})};
 $('fin').onclick=()=>{ended=true;$('panel').style.display='none';
 const o=ov('<h2>Sonuç raporu</h2>'+Q.map((q,k)=>'<label>'+q[0]+'<select id="q'+k+'"><option value="">Seç</option>'+q[1].map((x,j)=>'<option value="'+j+'">'+x+'</option>').join('')+'</select></label>').join('')
 +'<label>Mantıksal zincirin (gerekçe: hangi delil neyi gösteriyor?)<textarea id="tx" rows="6"></textarea></label><button id="sub">Raporu gönder</button> '+closeBtn());
 $('sub').onclick=()=>{if(!confirm('Raporu göndermek istiyor musun?'))return;run=false;
-const s=Math.floor((Date.now()-t0)/1000),tx=$('tx').value;let ok=0,rows='';
+const s=Math.floor((Date.now()-t0)/1000),tx=$('tx').value;let ok=0,rows='';const cev=Q.map((q,k)=>$('q'+k).value||'x').join('-');
 Q.forEach((q,k)=>{const v=$('q'+k).value,c=v!==''&&+v===q[2];if(c)ok++;rows+='<tr><td>'+(c?'✅':'❌')+'</td><td>'+q[0]+'</td><td>'+(c?q[1][q[2]]:'Doğru: '+q[1][q[2]])+'</td></tr>'});
 const hit=RUB.filter(r=>r[1].test(tx)),
 sc=Math.round(seen.size*30/H.length+ok*40/Q.length+hit.length*30/RUB.length);
 try{if(!best||sc>+best)localStorage.setItem(BK,sc)}catch(e){}
 const nq=asked.size,tq=SORGU.reduce((a,s)=>a+s[1].length,0);
-o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+' (30 puan)<br>Sorgu soruları: '+nq+' / '+tq+'<br>Adli tıp raporuna bakıldı mı: '+(labOk?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+' (40 puan)<br>Gerekçe: '+hit.length+' / '+RUB.length+' anahtar bulgu (30 puan)<br><b>Puan: '+sc+' / 100</b></p>'
+const fin2=()=>{o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+' (30 puan)<br>Sorgu soruları: '+nq+' / '+tq+'<br>Adli tıp raporuna bakıldı mı: '+(labOk?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+' (40 puan)<br>Gerekçe: '+hit.length+' / '+RUB.length+' anahtar bulgu (30 puan)<br>Ön test: '+PRE+' / 6 → Son test: '+POST+' / 6<br><b>Puan: '+sc+' / 100</b></p>'
 +'<table>'+rows+'</table><p><b>Gerekçende yakalanan bulgular:</b><br>'+RUB.map(r=>(hit.includes(r)?'✅ ':'⬜ ')+r[0]).join('<br>')+'</p>'
-+'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><button onclick="location.reload()">Yeniden başla</button>';
-document.getElementById('mine').textContent=tx||'(boş)'}};
++'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><p id="snd">Gönderiliyor...</p><button onclick="location.reload()">Yeniden başla</button>';
+document.getElementById('mine').textContent=tx||'(boş)';sendData([new Date().toISOString(),'AR',LV,FAB,s,seen.size,asked.size,labOk?1:0,ok,hit.length,sc,PRE,POST,cev].join(';'),tx)};postTest(fin2)}};
 </script></body></html>
