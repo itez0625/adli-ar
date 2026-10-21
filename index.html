@@ -19,16 +19,16 @@ table{border-collapse:collapse}td,th{border:1px solid #888;padding:5px;vertical-
 <div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="bm">Ölç</button> <button id="bv">Üstten</button> <button id="fin">Bitir</button></span></div><div id="ms"></div>
 <div id="panel"><h3 id="pt"></h3><p id="pi"></p><button id="uv" class="g">UV / Luminol ile incele</button> <button id="px" class="r">Kapat</button></div>
 <div id="start" class="ov" style="justify-content:center">
-<h2>Çalışma Odasındaki Sır</h2>
+<h2 id="stt">Çalışma Odasındaki Sır</h2>
 <p>Bu vaka, kişiler ve olaylar tamamen kurgusaldır; eğitim amaçlıdır.</p>
-<p>Telefonu yavaşça çevirerek odayı tara. Harf-numaralı noktalara dokunarak delilleri incele. <b>Dosya</b> düğmesinden vaka bilgisine ve ifadelere, <b>Adli Tıp</b> düğmesinden otopsi raporuna ulaşabilirsin. Sonunda <b>Bitir</b> ile sonuç raporunu doldur.</p>
-<button id="go">Başla</button><p id="msg"></p></div>
+<p>Telefonu yavaşça çevirerek odayı tara. Harf-numaralı noktalara dokunarak delilleri incele. <b>Dosya</b> düğmesinden vaka bilgisine ve ifadelere, <b>Adli Tıp / Lab</b> düğmesinden otopsi ya da laboratuvar raporuna ulaşabilirsin. Sonunda <b>Bitir</b> ile sonuç raporunu doldur.</p>
+<label>Senaryo <select id="ss"><option value="1">1 – Çalışma Odasındaki Sır</option><option value="2">2 – Sahte Burs Belgesi</option></select></label><label>Seviye <select id="sl"><option value="k">Kolay (ipuçlu)</option><option value="z">Zor (ipucu yok, 10 dk)</option></select></label><button id="go">Başla</button><p id="msg"></p></div>
 <div id="ov2" class="ov" style="display:none"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const LC={A:'#1565c0',B:'#c62828',C:'#2e7d32',D:'#ef6c00'};
 // [kod, ad, azimut, yükseklik, uzaklık, bilgi, gizli(UV/Luminol)]
-const H=[
+let H=[
 ["A1","Silah ve sağ el",-20,-20,2.2,"9 mm çapında tabanca, maktulün sağ elinin altında duruyor."],
 ["A2","Masadaki eşyalar",0,-15,2.4,"Kahve fincanı, kalemlik, not defteri ve bilgisayar faresi masanın sol tarafında.\nSağlık kaydı notu: maktul solaktır."],
 ["A3","Mektup",20,-20,2.2,"Maktulün önünde, eski bir daktiloyla yazılmış ve altına ıslak imza atılmış bir mektup var. Maktul yapay zekâ yazılımları geliştiren bir mühendis."],
@@ -40,7 +40,7 @@ const H=[
 ["C4","Çöp kutusu",-90,-40,2.5,"Peçeteye sarılmış, kırık bir viski kadehi var.","Kadeh kenarında parlayan tükürük izi var; DNA analizi Can Berk ile %99,9 eşleşiyor."],
 ["D1","Laptop kayıtları",-65,-15,2.2,"Kapalı laptopun log kaydı: ölümünden hemen önce dışarıdaki bilinmeyen bir sunucuya (IP) büyük bir veri transferi yapılmış, hemen ardından loglar silinmeye çalışılmış."],
 ["D2","Hisse devri sözleşmesi",-80,0,2.5,"Dijital hisse devri sözleşmesinin imza zaman damgası: gece 23:45."]];
-const DOSYA=`<h2>Vaka dosyası</h2>
+let DOSYA=`<h2>Vaka dosyası</h2>
 <p><b>Maktul:</b> Ahmet Yılmaz (45), yapay zekâ tabanlı savunma sanayii yazılımları geliştiren bir şirketin kurucu ortağı ve baş mühendisi.</p>
 <p><b>Olay yeri:</b> Evinin 3. katındaki çalışma odası. Pencereler içeriden mandallı, giriş kapısı çelik kilitli.</p>
 <p><b>İhbar:</b> 10 Ekim 2026, 09:00.</p>
@@ -49,16 +49,46 @@ const DOSYA=`<h2>Vaka dosyası</h2>
 <table><tr><th>Şüpheli</th><th>İlişkisi</th><th>İfadesi</th></tr>
 <tr><td>Melis Yılmaz</td><td>Maktulün eşi</td><td>“Eşim şirketteki yeni gizli ihale süreci yüzünden çok gergindi. Gece 23:00’te bana kahve yapıp odasına çekildi. Sabah silah sesine kadar hiç yukarı çıkmadım.”</td></tr>
 <tr><td>Can Berk</td><td>Şirket ortağı</td><td>“Ahmet şirketteki tüm hisselerini bana devretmek istiyordu. Olay gecesi 22:00’de evine gittim, sözleşmeyi imzaladık ve 22:15’te evden ayrıldım. Ölümüyle bir ilgim yok.”</td></tr></table>`;
-const OTOPSI=`<h2>Adli Tıp Raporu</h2>
+let OTOPSI=`<h2>Adli Tıp Raporu</h2>
 <p><b>Ölüm zamanı:</b> Rektal sıcaklık ve göz içi potasyum düzeyine göre ölüm gece 23:30 – 00:30 arasında gerçekleşmiş.</p>
 <p><b>Toksikoloji:</b> Kanda yüksek, ölümcül oranda zolpidem (güçlü uyku hapı / sedatif) bulundu. Maktul vurulmadan önce bilincini kaybetmiş olabilir.</p>
 <p><b>Ölüm lekeleri (livor mortis):</b> Sırt bölgesinde sabitlenmiş. Maktul ise sandalyede dik oturur pozisyonda bulundu.</p>`;
-const Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirlenemez"],1],
+let Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirlenemez"],1],
 ["Ölüm zamanı",["Sabah 08:30","Gece 23:30 – 00:30","Sabah 07:00 – 08:00"],1],
 ["Kapı",["İçeriden kilitliydi, zorla açıldı","Dışarıdan anahtarla kilitlenmişti"],1],
 ["Olayda rolü olan kişi(ler)",["Yalnızca Melis","Yalnızca Can Berk","Melis ve Can Berk","Kimse"],2],
 ["Ölümden sonra ceset yer değiştirdi mi?",["Evet","Hayır"],0]];
-const ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
+let ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
+const _P=new URLSearchParams(location.search),SC=_P.get('s')==='2'?'2':'1',LV=_P.get('l')==='z'?'z':'k';
+let TITLE='Çalışma Odasındaki Sır';
+const HINT={A:'Nesnelerin konumuna ve kime ait olduğuna bak.',B:'Yörünge ve açı neyi gösteriyor?',C:'İzlerin sahibini ve zamanını karşılaştır.',D:'Zaman damgalarını ifadelerle karşılaştır.'};
+if(SC==='2'){TITLE='Sahte Burs Belgesi';
+H=[["A1","Belgedeki imza",-30,-20,2.2,"Burs onay belgesinin altındaki imza mavi tükenmez kalemle atılmış. Dr. Selin Aksoy’un önceki belgelerdeki imzaları siyah mürekkepli ve kalem baskısı daha belirgin.",null,"paper"],
+["A2","Antetli kâğıt destesi",0,-15,2.4,"Belge, ofisteki antetli kâğıt destesinin alt sayfalarından birine basılmış. Deste kilitli dolapta duruyor; son sayım 12 Ekim’de yapılmış.",null,"paper"],
+["A3","Masadaki kalem",30,-20,2.2,"Ofis memuru Okan Demir’in masasında mavi bir tükenmez kalem var. Mürekkep türü belgedeki imzayla uyumlu görünüyor.",null,"pens"],
+["C1","Dolap kilidi",100,-5,3,"Antetli kâğıt dolabının kilidinde zorlanma izi yok. Dolabın anahtarı yalnızca memurda ve komisyon başkanında bulunuyor.",null,"door"],
+["C2","Çöp kutusu",-90,-40,2.5,"Çöp kutusunda buruşturulmuş bir kâğıt var.","UV ışığında kâğıtta aynı imzanın defalarca denendiği görülüyor. Kenarda Elif Kara’nın öğrenci numarası yazılı.","bin"],
+["D1","Fotokopi makinesi kaydı",-70,-12,2.3,"14 Ekim 18:42’de ofis kullanıcı kodu 07 ile 1 sayfa çıktı alınmış. Kod 07 memur Okan Demir’e ait.",null,"tablet"],
+["D2","Kapı kartı dökümü",-110,0,2.6,"18:30–19:10 arasında ofise yalnızca iki giriş var: memurun kartı ve temizlik görevlisinin kartı.",null,"tablet"],
+["D3","Bilgisayar dosya kaydı",150,-10,2.8,"Belge dosyası 18:35’te memurun hesabından oluşturulmuş. Dr. Aksoy o gün şehir dışında bir konferansta.",null,"laptop"]];
+DOSYA=`<h2>Vaka dosyası</h2>
+<p><b>Olay:</b> Fen Fakültesi Öğrenci İşleri ofisinde, bir burs onay belgesi komisyon başkanı Dr. Selin Aksoy’un imzasıyla düzenlenmiş. Dr. Aksoy belgeyi hiç imzalamadığını söylüyor.</p>
+<p><b>Tarih:</b> Belgenin üzerindeki tarih 14 Ekim 2026. Dr. Aksoy o gün şehir dışında konferanstaydı.</p>
+<p><b>Başvuran:</b> Elif Kara (burs başvurusu sahibi). <b>Ofis memuru:</b> Okan Demir.</p>
+<table><tr><th>Kişi</th><th>İfade</th></tr>
+<tr><td>Okan Demir</td><td>“O akşam ofiste kısa süre kaldım, belgeyi hazırlamadım. Anahtar hep yanımda.”</td></tr>
+<tr><td>Elif Kara</td><td>“Belgeyi ofisten kendim almadım, bana bir arkadaşım getirdi. Sahte olduğunu bilmiyordum.”</td></tr></table>
+<p>Tüm kişi ve olaylar kurgusaldır.</p>`;
+OTOPSI=`<h2>Laboratuvar Raporu</h2>
+<p><b>Mürekkep analizi:</b> Belgedeki imzanın mürekkebi, memur masasındaki kalemin mürekkebiyle aynı türde. Dr. Aksoy’un önceki belgelerindeki mürekkep farklı.</p>
+<p><b>Yazı baskısı:</b> İmzada düzensiz baskı ve yavaş atılmış çizgiler var; bu, taklit imzalarda sık görülen bir bulgudur.</p>
+<p><b>Parmak izi:</b> Belgede iki kişiye ait kısmi izler bulundu; biri memur Okan Demir ile uyumlu, diğeri henüz eşleşmedi.</p>`;
+Q=[["Belge gerçek mi?",["Gerçek, Dr. Aksoy imzalamış","Sahte"],1],
+["Belge ne zaman düzenlendi?",["14 Ekim, 18:30–19:10 arası","15 Ekim sabahı","12 Ekim"],0],
+["Belgeyi hazırlayan kişi",["Dr. Selin Aksoy","Okan Demir","Elif Kara","Belirlenemez"],1],
+["Dolap kilidi zorlanmış mı?",["Evet, zorlanmış","Hayır, anahtarla açılmış"],1],
+["Elif Kara’nın rolü",["Belgeyi kendisi sahteledi","Rolü kesin kanıtlanamıyor, ek inceleme gerekir","Hiçbir ilgisi yok"],1]];
+ZINCIR="Belge sahtedir: imza mavi mürekkepli ve baskısı farklı, Dr. Aksoy da o gün şehir dışındaydı. Belge 14 Ekim 18:30–19:10 arasında ofiste hazırlanmış (kart dökümü, bilgisayar ve fotokopi kaydı memurun kodu ve hesabıyla). Dolapta zorlanma yok, anahtar yalnızca memurda ve başkanda; kalem ve parmak izi memuru işaret ediyor. Çöp kutusundaki imza denemeleri ve öğrenci numarası notu Elif Kara ile bir bağlantıyı düşündürür, ancak rolü bu delillerle kanıtlanamaz, ek inceleme gerekir."}
 const $=id=>document.getElementById(id),Rd=Math.PI/180;
 const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,50);
 const ren=new THREE.WebGLRenderer({canvas:$('c'),alpha:true,antialias:false});
@@ -93,7 +123,7 @@ C2:()=>grp(bx(.12,.3,.03,0xb0bec5,0,.15,0),rot(cy(.012,.18,0xcfd8dc,.07,.15,.04)
 C4:()=>grp(cy(.12,.3,0x607d8b,0,.15,0,{open:1,m:{side:THREE.DoubleSide}})),
 D1:()=>grp(bx(.35,.03,.25,0x37474f,0,.015,0)),
 D2:()=>grp(bx(.22,.01,.3,0x263238,0,.005,0),bx(.2,.012,.27,0x4dd0e1,0,.008,0))};
-H.forEach((h,i)=>{const g=P[h[0]]();g.position.copy(sp[i].position);g.scale.setScalar(1.4);g.lookAt(0,g.position.y,0);scene.add(g);sp[i].position.y+=.55});
+Object.assign(P,{paper:P.A3,pens:P.A4,laptop:P.D1,tablet:P.D2,door:P.C1,bin:P.C4});H.forEach((h,i)=>{const g=P[h[7]||h[0]]();g.position.copy(sp[i].position);g.scale.setScalar(1.4);g.lookAt(0,g.position.y,0);scene.add(g);sp[i].position.y+=.55});
 function laser(){if(line)return;const a=sp[4].position,t=sp[1].position;
 line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,t]),new THREE.LineBasicMaterial({color:0xff0000,depthTest:false}));scene.add(line)}
 let a0=null,ang=null,t0=0,run=false,sel=-1;
@@ -104,14 +134,14 @@ cam.quaternion.setFromEuler(eu).multiply(q1);
 cam.quaternion.multiply(q0.setFromAxisAngle(z,-(screen.orientation?screen.orientation.angle:(window.orientation||0))*Rd))}
 (function loop(){requestAnimationFrame(loop);orient();ren.render(scene,cam)})();
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
-function hud(){const s=Math.floor((Date.now()-t0)/1000);
+let ended=false;function hud(){const el=Math.floor((Date.now()-t0)/1000),s=LV==='z'?Math.max(0,600-el):el;if(LV==='z'&&!ended&&run&&el>=600){ended=true;$('fin').click()}
 $('st').textContent='⏱ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+' | '+seen.size+'/'+H.length}
 function show(i){sel=i;const h=H[i];seen.add(i);
 $('pt').textContent=h[0]+' – '+h[1];
-$('pi').textContent=h[5]+(uvd.has(i)?'\n\n'+h[6]:'');
+$('pi').textContent=h[5]+(uvd.has(i)?'\n\n'+h[6]:'')+(LV==='k'?'\n\nİpucu: '+HINT[h[0][0]]:'');
 $('uv').style.display=(h[6]&&!uvd.has(i))?'inline-block':'none';
 sp[i].material.map=tex(h[0],'#546e7a');sp[i].material.needsUpdate=true;
-if(i===4)laser();$('panel').style.display='block';hud()}
+if(h[0]==='B1')laser();$('panel').style.display='block';hud()}
 const rc=new THREE.Raycaster();
 $('c').addEventListener('click',ev=>{if(!run)return;
 rc.setFromCamera({x:ev.clientX/innerWidth*2-1,y:-(ev.clientY/innerHeight)*2+1},cam);
@@ -133,6 +163,9 @@ function ov(html){const o=$('ov2');o.innerHTML=html;o.style.display='flex';retur
 function closeBtn(){return '<button class="r" onclick="document.getElementById(\'ov2\').style.display=\'none\'">Kapat</button>'}
 $('bf').onclick=()=>ov(DOSYA+closeBtn());
 $('ba').onclick=()=>{autop=true;ov(OTOPSI+closeBtn())};
+$('stt').textContent=TITLE;$('ss').value=SC;$('sl').value=LV;
+$('ss').onchange=$('sl').onchange=()=>{location.search='?s='+$('ss').value+'&l='+$('sl').value};
+$('ba').textContent=SC==='2'?'Lab':'Adli Tıp';
 $('go').onclick=async()=>{const m=$('msg');
 try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
 const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){m.textContent='Sensör izni verilmedi.';return}}}
@@ -140,14 +173,14 @@ catch(e){m.textContent='Sensör hatası: '+e.message;return}
 try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
 $('v').srcObject=s;await $('v').play()}catch(e){m.textContent='Kamera hatası: '+e.name;return}
 $('start').style.display='none';$('hud').style.display='flex';t0=Date.now();run=true;hud();setInterval(()=>run&&hud(),1000);ov(DOSYA+closeBtn())};
-$('fin').onclick=()=>{$('panel').style.display='none';
+$('fin').onclick=()=>{ended=true;$('panel').style.display='none';
 const o=ov('<h2>Sonuç raporu</h2>'+Q.map((q,k)=>'<label>'+q[0]+'<select id="q'+k+'"><option value="">Seç</option>'+q[1].map((x,j)=>'<option value="'+j+'">'+x+'</option>').join('')+'</select></label>').join('')
 +'<label>Mantıksal zincirin (gerekçe)<textarea id="tx" rows="6"></textarea></label><button id="sub">Raporu gönder</button> '+closeBtn());
 $('sub').onclick=()=>{if(!confirm('Raporu göndermek istiyor musun?'))return;run=false;
 const s=Math.floor((Date.now()-t0)/1000);let ok=0,det='';
 Q.forEach((q,k)=>{const v=$('q'+k).value;if(v!==''&&+v===q[2])ok++;else det+='<br>• '+q[0]+': '+q[1][q[2]]});
-const sc=seen.size*5+ok*9;const tx=$('tx').value;
-o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+'<br>Adli tıp raporuna bakıldı mı: '+(autop?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+'<br><b>Puan: '+sc+' / 100</b></p>'
+const sc=Math.round(seen.size*55/H.length+ok*45/Q.length);const tx=$('tx').value;
+o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+'<br>Rapor sekmesine bakıldı mı: '+(autop?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+'<br><b>Puan: '+sc+' / 100</b></p>'
 +(det?'<p><b>Doğru cevaplar (yanlış/boş bıraktıkların):</b>'+det+'</p>':'')
 +'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><button onclick="location.reload()">Yeniden başla</button>';
 document.getElementById('mine').textContent=tx||'(boş)'}};
