@@ -21,15 +21,15 @@ body.big .ov,body.big #panel,body.big #ms{font-size:19px}body.big td,body.big th
 <div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="bm">Ölç</button> <button id="bv">Üstten</button> <button id="bal">Hizala</button> <button id="bn">🔇</button> <button id="bz">A+</button> <button id="fin">Bitir</button></span></div><div id="ms"></div>
 <div id="panel"><h3 id="pt"></h3><p id="pi"></p><button id="uv" class="g">UV / Luminol ile incele</button> <button id="px" class="r">Kapat</button></div>
 <div id="start" class="ov" style="justify-content:center">
-<h2 id="stt"></h2>
+<h2>Çalışma Odasındaki Sır</h2>
 <p>Bu vaka, kişiler ve olaylar tamamen kurgusaldır; eğitim amaçlıdır.</p>
-<p>Telefonu yavaşça çevirerek odayı tara, harf-numaralı noktalara dokun. <b>Dosya</b> düğmesinde vaka bilgisi, <b>sorgu</b> ve <b>defter</b> var; sorgu soruları ilgili delili incelediğinde açılır. Adli Tıp/Lab raporu yeterli delil incelenince hazır olur. İşaretler kayarsa <b>Hizala</b> ile ekranın ortasını odanın önüne çevirip sıfırla. <b>Bitir</b> ile raporu doldur.</p>
-<label>Senaryo <select id="ss"><option value="1">1 – Çalışma Odasındaki Sır</option><option value="2">2 – Sahte Burs Belgesi</option></select></label><label>Seviye <select id="sl"><option value="k">Kolay (ipuçlu)</option><option value="z">Zor (ipucu yok, 10 dk)</option></select></label><button id="go">Başla</button><p id="msg"></p></div>
+<p>Telefonu yavaşça çevirerek odayı tara, harf-numaralı noktalara dokun. <b>Dosya</b> düğmesinde vaka bilgisi, <b>sorgu</b> ve <b>defter</b> var; sorgu soruları ilgili delili incelediğinde açılır. Adli Tıp raporu yeterli delil incelenince hazır olur. İşaretler kayarsa <b>Hizala</b> ile ekranın ortasını odanın önüne çevirip sıfırla. <b>Bitir</b> ile raporu doldur.</p>
+<label>Seviye <select id="sl"><option value="k">Kolay (ipuçlu)</option><option value="z">Zor (ipucu yok, 10 dk)</option></select></label><button id="go">Başla</button><p id="msg"></p></div>
 <div id="ov2" class="ov" style="display:none"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const LC={A:'#1565c0',B:'#c62828',C:'#2e7d32',D:'#ef6c00'};
-let H=[
+const H=[
 ["A1","Silah ve sağ el",-20,-20,2.2,"9 mm çapında tabanca, maktulün sağ elinin altında duruyor."],
 ["A2","Masadaki eşyalar",0,-15,2.4,"Kahve fincanı, kalemlik, not defteri ve bilgisayar faresi masanın sol tarafında.\nSağlık kaydı notu: maktul solaktır."],
 ["A3","Mektup",20,-20,2.2,"Maktulün önünde, eski bir daktiloyla yazılmış ve altına ıslak imza atılmış bir mektup var. Maktul yapay zekâ yazılımları geliştiren bir mühendis."],
@@ -44,7 +44,7 @@ let H=[
 ["B2","Pencere mandalları",60,5,3,"Üç pencerenin mandalları da içeriden kapalı, boyada ve çerçevede zorlanma izi yok. Odadan çıkışın tek yolu kapı.",null,"door"],
 ["D3","Giriş kamerası",-130,-5,2.6,"Evin giriş kamerası: 22:15’te bir kişi çıkıyor, 23:40’ta Can Berk’e benzeyen biri tekrar giriyor, 00:20’de çıkıyor.",null,"tablet"],
 ["A5","Gelen kutusu e-postası",130,-10,2.6,"Maktulün e-postasında ihale rakibinden sert bir mesaj var. Ancak gönderen olay gecesi yurt dışında; mesajın olayla bağlantısı kurulamıyor.",null,"laptop"]];
-let DOSYA=`<h2>Vaka dosyası</h2>
+const DOSYA=`<h2>Vaka dosyası</h2>
 <p><b>Maktul:</b> Ahmet Yılmaz (45), yapay zekâ tabanlı savunma sanayii yazılımları geliştiren bir şirketin kurucu ortağı ve baş mühendisi.</p>
 <p><b>Olay yeri:</b> Evinin 3. katındaki çalışma odası. Pencereler içeriden mandallı, giriş kapısı çelik kilitli.</p>
 <p><b>İhbar:</b> 10 Ekim 2026, 09:00.</p>
@@ -53,58 +53,24 @@ let DOSYA=`<h2>Vaka dosyası</h2>
 <table><tr><th>Şüpheli</th><th>İlişkisi</th><th>İfadesi</th></tr>
 <tr><td>Melis Yılmaz</td><td>Maktulün eşi</td><td>“Eşim şirketteki yeni gizli ihale süreci yüzünden çok gergindi. Gece 23:00’te bana kahve yapıp odasına çekildi. Sabah silah sesine kadar hiç yukarı çıkmadım.”</td></tr>
 <tr><td>Can Berk</td><td>Şirket ortağı</td><td>“Ahmet şirketteki tüm hisselerini bana devretmek istiyordu. Olay gecesi 22:00’de evine gittim, sözleşmeyi imzaladık ve 22:15’te evden ayrıldım. Ölümüyle bir ilgim yok.”</td></tr></table>`;
-let OTOPSI=`<h2>Adli Tıp Raporu</h2>
+const OTOPSI=`<h2>Adli Tıp Raporu</h2>
 <p><b>Ölüm zamanı:</b> Rektal sıcaklık ve göz içi potasyum düzeyine göre ölüm gece 23:30 – 00:30 arasında gerçekleşmiş.</p>
 <p><b>Toksikoloji:</b> Kanda yüksek, ölümcül oranda zolpidem (güçlü uyku hapı / sedatif) bulundu. Maktul vurulmadan önce bilincini kaybetmiş olabilir.</p>
 <p><b>Ölüm lekeleri (livor mortis):</b> Sırt bölgesinde sabitlenmiş. Maktul ise sandalyede dik oturur pozisyonda bulundu.</p>`;
-let Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirlenemez"],1],
+const Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirlenemez"],1],
 ["Ölüm zamanı",["Sabah 08:30","Gece 23:30 – 00:30","Sabah 07:00 – 08:00"],1],
 ["Kapı",["İçeriden kilitliydi, zorla açıldı","Dışarıdan anahtarla kilitlenmişti"],1],
 ["Olayda rolü olan kişi(ler)",["Yalnızca Melis","Yalnızca Can Berk","Melis ve Can Berk","Kimse"],2],
 ["Ölümden sonra ceset yer değiştirdi mi?",["Evet","Hayır"],0]];
-let ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (giriş kamerası, kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
+const ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (giriş kamerası, kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
 // Sorgu: [şüpheli,[[soru,cevap,gerekli delil kodu]]]
-let SORGU=[["Melis Yılmaz",[["Gece ne yaptınız?","Kahveyi yapıp eşime verdim, sonra yatağıma çekildim.",""],["Masadaki kahve fincanını kim götürdü?","Ben… yani götürmüş olabilirim. Tam hatırlamıyorum, ‘hiç çıkmadım’ demiştim.","A2"],["Kilitte zorlanma izi yok; kapıyı nasıl açtık dediniz?","Hizmetli yardım etti… Kapı belki kilitli değildi. Bilmiyorum.","C1"]]],
+const SORGU=[["Melis Yılmaz",[["Gece ne yaptınız?","Kahveyi yapıp eşime verdim, sonra yatağıma çekildim.",""],["Masadaki kahve fincanını kim götürdü?","Ben… yani götürmüş olabilirim. Tam hatırlamıyorum, ‘hiç çıkmadım’ demiştim.","A2"],["Kilitte zorlanma izi yok; kapıyı nasıl açtık dediniz?","Hizmetli yardım etti… Kapı belki kilitli değildi. Bilmiyorum.","C1"]]],
 ["Can Berk",[["Evden ne zaman ayrıldınız?","22:15’te, sözleşmeyi imzalar imzalamaz.",""],["Sözleşme zaman damgası 23:45 görünüyor.","Sistem gecikmeli işlemiş olmalı.","D2"],["Kapı kolunda parmak izin çıktı.","Eski ziyaretlerden kalmıştır.","C2"],["Çöpteki kadehte DNA’n var.","…Bir avukatla konuşmak istiyorum.","C4"],["Kamera 23:40’ta eve tekrar girdiğini gösteriyor.","…Yalnızca konuşmaya gelmiştim.","D3"]]]];
-let RUB=[["Sahnelenmiş cinayet / intihar değil",/sahne|kurgu|intihar\s*değil|intihar\s*de|cinayet|öldürül/i],["Solak maktul ve sağ el çelişkisi",/solak|sol\s*el/i],["GSR (atış artığı) yok",/gsr|atış\s*artığ|barut/i],["Ölüm lekeleri / ceset taşınması",/leke|livor|taşın|taşıd|yer\s*değiş|sırtüstü/i],["Kapı dışarıdan kilitli",/dışarıdan|dışardan|anahtar|kilitli/i],["Can Berk’i bağlayan izler (kolu, kadeh, imza)",/parmak|dna|kadeh|kamera|23:45|zaman\s*damga|can\s*berk/i],["Sedatif / kahve",/zolpidem|uyku|sedatif|ilaç|kahve/i]];
-const _P=new URLSearchParams(location.search),SC=_P.get('s')==='2'?'2':'1',LV=_P.get('l')==='z'?'z':'k';
-let TITLE='Çalışma Odasındaki Sır';
+const RUB=[["Sahnelenmiş cinayet / intihar değil",/sahne|kurgu|intihar\s*değil|intihar\s*de|cinayet|öldürül/i],["Solak maktul ve sağ el çelişkisi",/solak|sol\s*el/i],["GSR (atış artığı) yok",/gsr|atış\s*artığ|barut/i],["Ölüm lekeleri / ceset taşınması",/leke|livor|taşın|taşıd|yer\s*değiş|sırtüstü/i],["Kapı dışarıdan kilitli",/dışarıdan|dışardan|anahtar|kilitli/i],["Can Berk’i bağlayan izler (kolu, kadeh, imza)",/parmak|dna|kadeh|kamera|23:45|zaman\s*damga|can\s*berk/i],["Sedatif / kahve",/zolpidem|uyku|sedatif|ilaç|kahve/i]];
+const LV=new URLSearchParams(location.search).get('l')==='z'?'z':'k';
 const HINT={A:'Nesnelerin konumuna ve kime ait olduğuna bak.',B:'Yörünge ve açı neyi gösteriyor?',C:'İzlerin sahibini ve zamanını karşılaştır.',D:'Zaman damgalarını ifadelerle karşılaştır.'};
-if(SC==='2'){TITLE='Sahte Burs Belgesi';
-H=[["A1","Belgedeki imza",-30,-20,2.2,"Burs onay belgesinin altındaki imza mavi tükenmez kalemle atılmış. Dr. Selin Aksoy’un önceki belgelerdeki imzaları siyah mürekkepli ve kalem baskısı daha belirgin.",null,"paper"],
-["A2","Antetli kâğıt destesi",0,-15,2.4,"Belge, ofisteki antetli kâğıt destesinin alt sayfalarından birine basılmış. Deste kilitli dolapta duruyor; son sayım 12 Ekim’de yapılmış.",null,"paper"],
-["A3","Masadaki kalem",30,-20,2.2,"Ofis memuru Okan Demir’in masasında mavi bir tükenmez kalem var. Mürekkep türü belgedeki imzayla uyumlu görünüyor.",null,"pens"],
-["C1","Dolap kilidi",100,-5,3,"Antetli kâğıt dolabının kilidinde zorlanma izi yok. Dolabın anahtarı yalnızca memurda ve komisyon başkanında bulunuyor.",null,"door"],
-["C2","Çöp kutusu",-90,-40,2.5,"Çöp kutusunda buruşturulmuş bir kâğıt var.","UV ışığında kâğıtta aynı imzanın defalarca denendiği görülüyor. Kenarda Elif Kara’nın öğrenci numarası yazılı.","bin"],
-["D1","Fotokopi makinesi kaydı",-70,-12,2.3,"14 Ekim 18:42’de ofis kullanıcı kodu 07 ile 1 sayfa çıktı alınmış. Kod 07 memur Okan Demir’e ait.",null,"tablet"],
-["D2","Kapı kartı dökümü",-110,0,2.6,"18:30–19:10 arasında ofise yalnızca iki giriş var: memurun kartı ve temizlik görevlisinin kartı.",null,"tablet"],
-["D3","Bilgisayar dosya kaydı",150,-10,2.8,"Belge dosyası 18:35’te memurun hesabından oluşturulmuş. Dr. Aksoy o gün şehir dışında bir konferansta.",null,"laptop"],
-["A5","Dr. Aksoy’un takvimi",60,-22,2.3,"Takvimde 14 Ekim 08:00–20:00 konferans görünüyor; otel girişi aynı gün 21:10’da yapılmış.",null,"paper"],
-["D4","Temizlik görevlisi ifadesi",-150,-8,2.6,"Temizlik görevlisi, 18:50’de ofisten çıkarken Okan Demir’i bilgisayar başında gördüğünü, dolaba hiç dokunmadığını söylüyor.",null,"tablet"],
-["C3","Elif’in başvuru dosyası",175,-15,2.6,"Elif Kara’nın başvuru dosyası eksiksiz ve burs şartlarını gerçekten karşılıyor; sahte belgeye ihtiyacı olmayabilir. Bu tek başına onu aklamaz.",null,"paper"]];
-DOSYA=`<h2>Vaka dosyası</h2>
-<p><b>Olay:</b> Fen Fakültesi Öğrenci İşleri ofisinde, bir burs onay belgesi komisyon başkanı Dr. Selin Aksoy’un imzasıyla düzenlenmiş. Dr. Aksoy belgeyi hiç imzalamadığını söylüyor.</p>
-<p><b>Tarih:</b> Belgenin üzerindeki tarih 14 Ekim 2026. Dr. Aksoy o gün şehir dışında konferanstaydı.</p>
-<p><b>Başvuran:</b> Elif Kara (burs başvurusu sahibi). <b>Ofis memuru:</b> Okan Demir.</p>
-<table><tr><th>Kişi</th><th>İfade</th></tr>
-<tr><td>Okan Demir</td><td>“O akşam ofiste kısa süre kaldım, belgeyi hazırlamadım. Anahtar hep yanımda.”</td></tr>
-<tr><td>Elif Kara</td><td>“Belgeyi ofisten kendim almadım, bana bir arkadaşım getirdi. Sahte olduğunu bilmiyordum.”</td></tr></table>
-<p>Tüm kişi ve olaylar kurgusaldır.</p>`;
-OTOPSI=`<h2>Laboratuvar Raporu</h2>
-<p><b>Mürekkep analizi:</b> Belgedeki imzanın mürekkebi, memur masasındaki kalemin mürekkebiyle aynı türde. Dr. Aksoy’un önceki belgelerindeki mürekkep farklı.</p>
-<p><b>Yazı baskısı:</b> İmzada düzensiz baskı ve yavaş atılmış çizgiler var; bu, taklit imzalarda sık görülen bir bulgudur.</p>
-<p><b>Parmak izi:</b> Belgede iki kişiye ait kısmi izler bulundu; biri memur Okan Demir ile uyumlu, diğeri henüz eşleşmedi.</p>`;
-Q=[["Belge gerçek mi?",["Gerçek, Dr. Aksoy imzalamış","Sahte"],1],
-["Belge ne zaman düzenlendi?",["14 Ekim, 18:30–19:10 arası","15 Ekim sabahı","12 Ekim"],0],
-["Belgeyi hazırlayan kişi",["Dr. Selin Aksoy","Okan Demir","Elif Kara","Belirlenemez"],1],
-["Dolap kilidi zorlanmış mı?",["Evet, zorlanmış","Hayır, anahtarla açılmış"],1],
-["Elif Kara’nın rolü",["Belgeyi kendisi sahteledi","Rolü kesin kanıtlanamıyor, ek inceleme gerekir","Hiçbir ilgisi yok"],1]];
-ZINCIR="Belge sahtedir: imza mavi mürekkepli ve baskısı farklı, Dr. Aksoy da o gün şehir dışındaydı. Belge 14 Ekim 18:30–19:10 arasında ofiste hazırlanmış (kart dökümü, bilgisayar ve fotokopi kaydı memurun kodu ve hesabıyla; temizlik görevlisi de memuru bilgisayar başında gördü). Dolapta zorlanma yok, anahtar yalnızca memurda ve başkanda; kalem ve parmak izi memuru işaret ediyor. Çöp kutusundaki imza denemeleri ve öğrenci numarası notu Elif Kara ile bir bağlantıyı düşündürür, ancak rolü bu delillerle kanıtlanamaz, ek inceleme gerekir.";
-SORGU=[["Okan Demir",[["Akşam ofiste miydiniz?","Kısa süre kaldım, sadece birkaç evrak.",""],["Fotokopi kaydı kodunuzla 18:42’de çıkmış.","Kodumu başkası kullanmış olabilir.","D1"],["Belgedeki mürekkep sizin kalemle aynı türde.","Mavi kalem herkeste var.","A3"],["Dolabın anahtarı kimde?","…Yalnızca bende ve başkanda.","C1"],["Temizlik görevlisi sizi 18:50’de bilgisayar başında gördü.","Evrak işleri yapıyordum, hepsi bu.","D4"]]],
-["Elif Kara",[["Belgeyi kim getirdi?","Bir arkadaşım. Adını söylemek istemiyorum.",""],["Çöpteki kâğıtta öğrenci numaran var.","Notlarımı atmış olabilirim ama imzayı ben denemedim.","C2"],["Başvurun eksiksizmiş, belgeye neden ihtiyaç vardı?","Bilmiyorum, arkadaşım acele ettirdi.","C3"]]]];
-RUB=[["Belgenin sahte olduğu",/sahte|taklit|sahtecilik/i],["Mavi mürekkep / kalem / baskı farkı",/mavi|mürekkep|kalem|baskı|imza/i],["Kod, kart veya fotokopi kaydı",/kod|kart|kayıt|fotokopi|bilgisayar|temizlik|görevli|takvim/i],["Dolap kilidi / anahtar",/dolap|anahtar|kilit/i],["Elif’in rolünün kanıtlanamaması",/kanıtlan|ek\s*inceleme|kesin\s*değil|kesin\s*delil/i]]}
 const $=id=>document.getElementById(id),Rd=Math.PI/180;
-const BK='ars'+SC+LV;let best=null;try{best=localStorage.getItem(BK)}catch(e){}
+const BK='ars'+LV;let best=null;try{best=localStorage.getItem(BK)}catch(e){}
 $('msg').textContent=best?'En iyi puanın: '+best+' / 100':'';
 let AC=null,nar=false;
 function beep(f){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.12)}catch(e){}}
@@ -193,13 +159,12 @@ const lock=q[2]&&!seenCode(q[2]);return '<button class="l" '+(lock?'style="opaci
 else if(t===2){h+='<h2>Delil defteri</h2>'+(seen.size?[...seen].map(i=>'<div class="a"><b>'+H[i][0]+' '+H[i][1]+':</b> '+H[i][5]+(uvd.has(i)?' '+H[i][6]:'')+'</div>').join(''):'<p>Henüz delil incelenmedi.</p>')}
 else h+=DOSYA;ov(h+closeBtn())}
 function ask(key,k,j){const q=SORGU[k][1][j];if(q[2]&&!seenCode(q[2])){beep(200);return}asked.add(key);beep(440);dosya(1)}
-const TOUR=[['1/3 Odayı tara','Telefonu yavaşça çevir; işaretlere dokunarak delili incele. Şekil türü verir: ● daire A eşyalar, ■ kare B balistik, ▲ üçgen C izler ve kilitler, ◆ eşkenar dörtgen D kayıtlar. Yanıp sönenler henüz incelenmemiştir.'],['2/3 Araçların','UV/Luminol gizli izleri gösterir. Ölç iki delil arası mesafeyi verir. Üstten odanın planını açar. Hizala işaretler kayarsa yönü sıfırlar. A+ yazıyı büyütür.'],['3/3 Çözüm','Dosya’dan vakayı, sorguyu ve defteri aç; sorular ilgili delili bulunca açılır. 4 delil incelenince Adli Tıp/Lab raporu hazır olur. Bazı deliller seni yanıltabilir. Hazır olunca Bitir ile raporunu yaz.']];
+const TOUR=[['1/3 Odayı tara','Telefonu yavaşça çevir; işaretlere dokunarak delili incele. Şekil türü verir: ● daire A eşyalar, ■ kare B balistik, ▲ üçgen C izler ve kilitler, ◆ eşkenar dörtgen D kayıtlar. Yanıp sönenler henüz incelenmemiştir.'],['2/3 Araçların','UV/Luminol gizli izleri gösterir. Ölç iki delil arası mesafeyi verir. Üstten odanın planını açar. Hizala işaretler kayarsa yönü sıfırlar. A+ yazıyı büyütür.'],['3/3 Çözüm','Dosya’dan vakayı, sorguyu ve defteri aç; sorular ilgili delili bulunca açılır. 4 delil incelenince Adli Tıp raporu hazır olur. Bazı deliller seni yanıltabilir. Hazır olunca Bitir ile raporunu yaz.']];
 function tour(n){if(n>=TOUR.length)return dosya(0);ov('<h2>'+TOUR[n][0]+'</h2><p>'+TOUR[n][1]+'</p><button onclick="tour('+(n+1)+')">'+(n<2?'İleri':'Vakaya başla')+'</button>')}
 $('bf').onclick=()=>dosya(0);
 $('ba').onclick=()=>{if(seen.size<NEED&&!labOk){beep(200);return ov('<h2>Rapor hazır değil</h2><p>Laboratuvar sonuçları için en az '+NEED+' delil incele (şu an '+seen.size+').</p>'+closeBtn())}labOk=true;ov(OTOPSI+closeBtn())};
-$('stt').textContent=TITLE;$('ss').value=SC;$('sl').value=LV;
-$('ss').onchange=$('sl').onchange=()=>{location.search='?s='+$('ss').value+'&l='+$('sl').value};
-$('ba').textContent=SC==='2'?'Lab':'Adli Tıp';
+$('sl').value=LV;
+$('sl').onchange=()=>{location.search='?l='+$('sl').value};
 $('go').onclick=async()=>{const m=$('msg');
 try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
 const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){m.textContent='Sensör izni verilmedi.';return}}}
@@ -217,7 +182,7 @@ const hit=RUB.filter(r=>r[1].test(tx)),
 sc=Math.round(seen.size*30/H.length+ok*40/Q.length+hit.length*30/RUB.length);
 try{if(!best||sc>+best)localStorage.setItem(BK,sc)}catch(e){}
 const nq=asked.size,tq=SORGU.reduce((a,s)=>a+s[1].length,0);
-o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+' (30 puan)<br>Sorgu soruları: '+nq+' / '+tq+'<br>Lab/Adli rapora bakıldı mı: '+(labOk?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+' (40 puan)<br>Gerekçe: '+hit.length+' / '+RUB.length+' anahtar bulgu (30 puan)<br><b>Puan: '+sc+' / 100</b></p>'
+o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+' (30 puan)<br>Sorgu soruları: '+nq+' / '+tq+'<br>Adli tıp raporuna bakıldı mı: '+(labOk?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+' (40 puan)<br>Gerekçe: '+hit.length+' / '+RUB.length+' anahtar bulgu (30 puan)<br><b>Puan: '+sc+' / 100</b></p>'
 +'<table>'+rows+'</table><p><b>Gerekçende yakalanan bulgular:</b><br>'+RUB.map(r=>(hit.includes(r)?'✅ ':'⬜ ')+r[0]).join('<br>')+'</p>'
 +'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><button onclick="location.reload()">Yeniden başla</button>';
 document.getElementById('mine').textContent=tx||'(boş)'}};
