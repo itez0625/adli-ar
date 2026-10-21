@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adli AR – Kart Modu</title>
+<style>
+html,body{margin:0;height:100%;background:#000;color:#fff;font-family:sans-serif}
+#st{position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.65);font-size:13px;line-height:1.4;display:none}
+#st a{color:#80cbc4;float:right;pointer-events:auto}
+#box{position:fixed;inset:0;overflow:hidden}
+#intro{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:20px;background:#111;font-size:15px;line-height:1.4}
+#panel{position:fixed;left:0;right:0;bottom:0;z-index:9999;display:none;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));background:rgba(20,20,20,.95);border-radius:16px 16px 0 0}
+#panel h3{margin:0 0 6px}#pi{margin:0 0 12px;line-height:1.4;white-space:pre-line}
+button{font-size:16px;border:0;border-radius:12px;padding:12px 14px;background:#1e88e5;color:#fff}
+button.g{background:#2e7d32}button.r{background:#757575}a{color:#80cbc4}
+</style></head><body>
+<div id="intro">
+<h2>Adli AR – Kart Modu (v1)</h2>
+<p>1) <a href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card-example/card.png" target="_blank">Hedef kartı</a> başka bir ekranda aç ya da yazdırıp masaya koy.<br>2) Başlat’a bas, kameranı karta tut.<br>3) Kartın etrafında delil işaretleri belirir; dokunarak incele. Kart kameradan çıkarsa işaretler kaybolur.</p>
+<p>Vaka: Çalışma Odasındaki Sır. Tam oyun için ana sayfaya dön.</p>
+<button id="go">Başlat</button> <a href="index.html">Ana oyun</a></div>
+<div id="st"><a href="index.html">Ana oyun</a><span id="stt"></span></div>
+<div id="box"></div>
+<div id="panel"><h3 id="pt"></h3><p id="pi"></p><button id="uv" class="g">UV / Luminol ile incele</button> <button id="px" class="r">Kapat</button></div>
+<script>
+const SRC={
+ m1:['https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js'],
+ af:['https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js','https://cdnjs.cloudflare.com/ajax/libs/aframe/1.2.0/aframe.min.js'],
+ m2:['https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js']};
+const MIND='https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card-example/card.mind';
+const LC={A:'#1565c0',B:'#c62828',C:'#2e7d32',D:'#ef6c00'},Rd=Math.PI/180;
+// [kod, ad, azimut, uzaklık, bilgi, gizli]
+const H=[
+["A1","Silah ve sağ el",-20,2.2,"9 mm çapında tabanca, maktulün sağ elinin altında duruyor."],
+["A2","Masadaki eşyalar",0,2.4,"Kahve fincanı, kalemlik, not defteri ve bilgisayar faresi masanın sol tarafında.\nSağlık kaydı notu: maktul solaktır."],
+["A3","Mektup",20,2.2,"Maktulün önünde, eski bir daktiloyla yazılmış ve altına ıslak imza atılmış bir mektup var."],
+["A4","İmza ve kalem",40,2.3,"İmza mavi tükenmez kalemle atılmış. Masadaki kalem siyah mürekkepli."],
+["B1","Duvardaki mermi deliği",160,3,"Giriş açısı arkadan ve yaklaşık 15° yukarıdan aşağı; maktulün oturduğu pozisyonda kendi kol uzunluğuyla bu açıyı sağlaması mümkün görünmüyor."],
+["B2","Pencere mandalları",60,3,"Üç pencerenin mandalları da içeriden kapalı, zorlanma izi yok. Odadan çıkışın tek yolu kapı."],
+["C1","Kapı kilidi",90,3,"Kilit dillerinde mekanik zorlanma yok. Kapı pürüzsüzce dışarıdan anahtarla kilitlenmiş."],
+["C2","Kapının iç kolu",110,3,"Kapının iç kolu.","UV modunda latent parmak izi görünüyor: Can Berk."],
+["C3","Silah kabzası",-45,2.2,"Silah üzerinde yalnızca maktulün parmak izi var. Maktulün ellerinde GSR bulunamadı."],
+["C4","Çöp kutusu",-90,2.5,"Peçeteye sarılmış, kırık bir viski kadehi var.","Kadeh kenarında tükürük izi var; DNA analizi Can Berk ile %99,9 eşleşiyor."],
+["D1","Laptop kayıtları",-65,2.2,"Ölümünden hemen önce bilinmeyen bir sunucuya büyük veri transferi yapılmış, ardından loglar silinmeye çalışılmış."],
+["D2","Hisse devri sözleşmesi",-80,2.5,"Dijital hisse devri sözleşmesinin imza zaman damgası: gece 23:45."],
+["D3","Giriş kamerası",-130,2.6,"22:15’te bir kişi çıkıyor, 23:40’ta Can Berk’e benzeyen biri tekrar giriyor, 00:20’de çıkıyor."],
+["A5","Gelen kutusu e-postası",130,2.6,"İhale rakibinden sert bir mesaj var. Gönderen olay gecesi yurt dışında; olayla bağlantısı kurulamıyor."]];
+const $=id=>document.getElementById(id),st=$('stt'),seen=new Set(),uvd=new Set(),ents=[];let sel=-1,L=[];
+function say(t){L.push(t);st.innerHTML=L.slice(-3).join('<br>')}
+function hud(){st.innerHTML='İncelenen: '+seen.size+' / '+H.length+'<br>'+(L[L.length-1]||'')}
+function load(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(u);document.head.appendChild(s)})}
+async function first(n){for(const u of SRC[n]){try{await load(u);return}catch(e){}}throw new Error(n+' yüklenemedi')}
+function tex(t,col){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),k=t[0];
+g.fillStyle=col;g.globalAlpha=.92;g.beginPath();
+if(k==='B')g.rect(12,12,104,104);else if(k==='C'){g.moveTo(64,6);g.lineTo(122,116);g.lineTo(6,116);g.closePath()}else if(k==='D'){g.moveTo(64,6);g.lineTo(122,64);g.lineTo(64,122);g.lineTo(6,64);g.closePath()}else g.arc(64,64,56,0,7);
+g.fill();g.globalAlpha=1;g.lineWidth=8;g.strokeStyle='#fff';g.stroke();g.fillStyle='#fff';g.font='bold 44px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(t,64,70);return c.toDataURL()}
+function show(i){sel=i;seen.add(i);const h=H[i];$('pt').textContent=h[0]+' – '+h[1];
+$('pi').textContent=h[4]+(uvd.has(i)?'\n\n'+h[5]:'');$('uv').style.display=(h[5]&&!uvd.has(i))?'inline-block':'none';
+ents[i].setAttribute('material',{src:tex(h[0]+'✓','#546e7a'),transparent:true,shader:'flat'});$('panel').style.display='block';hud()}
+$('px').onclick=()=>{$('panel').style.display='none'};
+$('uv').onclick=()=>{uvd.add(sel);show(sel)};
+$('go').onclick=async()=>{
+ $('intro').style.display='none';$('st').style.display='block';say('Kütüphaneler yükleniyor...');
+ try{await first('m1');await first('af');await first('m2')}catch(e){say('HATA: '+e.message);return}
+ $('box').innerHTML='<a-scene mindar-image="imageTargetSrc: '+MIND+';" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">'
+ +'<a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse" raycaster="far: 10000; objects: .ev"></a-camera>'
+ +'<a-entity id="tg" mindar-image-target="targetIndex: 0"></a-entity></a-scene>';
+ const sc=$('box').querySelector('a-scene'),tg=$('tg');
+ H.forEach((h,i)=>{const a=h[2]*Rd,r=h[3]*.6,x=(r*Math.sin(a)).toFixed(2),y=(r*Math.cos(a)).toFixed(2);
+  const e=document.createElement('a-plane');e.setAttribute('width',.5);e.setAttribute('height',.5);e.setAttribute('position',x+' '+y+' 0.4');
+  e.setAttribute('material',{src:tex(h[0],LC[h[0][0]]),transparent:true,shader:'flat'});e.classList.add('ev');
+  e.addEventListener('click',()=>show(i));tg.appendChild(e);ents.push(e);
+  const p=document.createElement('a-cylinder');p.setAttribute('radius',.012);p.setAttribute('height',.4);p.setAttribute('color','#ffd600');p.setAttribute('position',x+' '+y+' 0.2');p.setAttribute('rotation','90 0 0');tg.appendChild(p)});
+ sc.addEventListener('arReady',()=>{say('Hazır. Kartı göster.');const c=sc.querySelector('a-camera');if(c.components.raycaster)c.components.raycaster.refreshObjects()});
+ sc.addEventListener('arError',()=>say('HATA: kamera/MindAR başlatılamadı (izin? HTTPS?)'));
+ tg.addEventListener('targetFound',()=>{say('Kart bulundu');hud()});
+ tg.addEventListener('targetLost',()=>say('Kart kayboldu'));
+};
+</script></body></html>
