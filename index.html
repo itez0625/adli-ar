@@ -76,6 +76,24 @@ const grid=new THREE.GridHelper(8,8,0x888888,0x444444);grid.position.y=-1;grid.v
 const me=new THREE.Sprite(new THREE.SpriteMaterial({map:tex('Sen','#6a1b9a'),depthTest:false}));me.scale.setScalar(1.2);me.visible=false;scene.add(me);
 function setK(k){sp.forEach(x=>x.scale.setScalar(x.position.length()*.16*k))}
 let tv=false,mm=false,mA=-1,mLine=null;
+scene.add(new THREE.AmbientLight(0xffffff,.75));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(1,2,1);scene.add(dl);
+const MT=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.7,metalness:.1},o||{}));
+const bx=(w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),MT(c));m.position.set(x||0,y||0,z||0);return m};
+const cy=(r,h,c,x,y,z,o)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,16,1,!!(o&&o.open)),MT(c,o&&o.m));m.position.set(x||0,y||0,z||0);return m};
+const grp=(...a)=>{const g=new THREE.Group();a.forEach(x=>g.add(x));return g};
+const rot=(m,ax,v)=>{m.rotation[ax]=v;return m};
+const tent=()=>{const m=new THREE.Mesh(new THREE.ConeGeometry(.16,.3,4),MT(0xffd600));m.position.y=.15;m.rotation.y=Math.PI/4;return grp(m)};
+const P={A1:tent,C3:tent,
+A2:()=>grp(cy(.05,.1,0xffffff,-.12,.05,0),cy(.04,.12,0x37474f,.02,.06,0),bx(.16,.02,.22,0x1565c0,.16,.01,.02)),
+A3:()=>grp(bx(.3,.01,.21,0xf5f5f5,0,.005,0)),
+A4:()=>grp(rot(cy(.008,.16,0x1976d2,-.04,.01,0),'z',Math.PI/2),rot(cy(.008,.16,0x111111,.04,.01,0),'z',Math.PI/2)),
+B1:()=>grp(bx(.7,.7,.05,0x90a4ae,0,.35,0),rot(cy(.03,.02,0x111111,0,.4,.03),'x',Math.PI/2)),
+C1:()=>grp(bx(.5,.8,.05,0x8d6e63,0,.4,0),rot(cy(.03,.03,0xb0bec5,.15,.4,.04),'x',Math.PI/2)),
+C2:()=>grp(bx(.12,.3,.03,0xb0bec5,0,.15,0),rot(cy(.012,.18,0xcfd8dc,.07,.15,.04),'z',Math.PI/2)),
+C4:()=>grp(cy(.12,.3,0x607d8b,0,.15,0,{open:1,m:{side:THREE.DoubleSide}})),
+D1:()=>grp(bx(.35,.03,.25,0x37474f,0,.015,0)),
+D2:()=>grp(bx(.22,.01,.3,0x263238,0,.005,0),bx(.2,.012,.27,0x4dd0e1,0,.008,0))};
+H.forEach((h,i)=>{const g=P[h[0]]();g.position.copy(sp[i].position);g.scale.setScalar(1.4);g.lookAt(0,g.position.y,0);scene.add(g);sp[i].position.y+=.55});
 function laser(){if(line)return;const a=sp[4].position,t=sp[1].position;
 line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,t]),new THREE.LineBasicMaterial({color:0xff0000,depthTest:false}));scene.add(line)}
 let a0=null,ang=null,t0=0,run=false,sel=-1;
