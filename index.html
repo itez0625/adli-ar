@@ -15,9 +15,10 @@ button{font-size:15px;border:0;border-radius:10px;padding:9px 13px;background:#1
 table{border-collapse:collapse}td,th{border:1px solid #888;padding:5px;vertical-align:top;font-size:14px}
 #ms{position:fixed;left:10px;right:10px;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:none;padding:10px;border-radius:10px;background:rgba(0,0,0,.8);text-align:center}button.on{background:#f9a825;color:#000}
 .a{background:#263238;border-radius:8px;padding:8px}
+body.big .ov,body.big #panel,body.big #ms{font-size:19px}body.big td,body.big th{font-size:17px}body.big #hud{font-size:16px}body.big #hud button{font-size:16px}
 </style></head><body>
 <video id="v" playsinline muted autoplay></video><canvas id="c"></canvas>
-<div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="bm">Ölç</button> <button id="bv">Üstten</button> <button id="bal">Hizala</button> <button id="bn">🔇</button> <button id="fin">Bitir</button></span></div><div id="ms"></div>
+<div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="bm">Ölç</button> <button id="bv">Üstten</button> <button id="bal">Hizala</button> <button id="bn">🔇</button> <button id="bz">A+</button> <button id="fin">Bitir</button></span></div><div id="ms"></div>
 <div id="panel"><h3 id="pt"></h3><p id="pi"></p><button id="uv" class="g">UV / Luminol ile incele</button> <button id="px" class="r">Kapat</button></div>
 <div id="start" class="ov" style="justify-content:center">
 <h2 id="stt"></h2>
@@ -39,7 +40,10 @@ let H=[
 ["C3","Silah kabzası",-45,-25,2.2,"Silah üzerinde yalnızca maktulün parmak izi var. Atış artığı panelinde (antimon, baryum, kurşun) maktulün ellerinde GSR bulunamadı."],
 ["C4","Çöp kutusu",-90,-40,2.5,"Peçeteye sarılmış, kırık bir viski kadehi var.","Kadeh kenarında parlayan tükürük izi var; DNA analizi Can Berk ile %99,9 eşleşiyor."],
 ["D1","Laptop kayıtları",-65,-15,2.2,"Kapalı laptopun log kaydı: ölümünden hemen önce dışarıdaki bilinmeyen bir sunucuya (IP) büyük bir veri transferi yapılmış, hemen ardından loglar silinmeye çalışılmış."],
-["D2","Hisse devri sözleşmesi",-80,0,2.5,"Dijital hisse devri sözleşmesinin imza zaman damgası: gece 23:45."]];
+["D2","Hisse devri sözleşmesi",-80,0,2.5,"Dijital hisse devri sözleşmesinin imza zaman damgası: gece 23:45."],
+["B2","Pencere mandalları",60,5,3,"Üç pencerenin mandalları da içeriden kapalı, boyada ve çerçevede zorlanma izi yok. Odadan çıkışın tek yolu kapı.",null,"door"],
+["D3","Giriş kamerası",-130,-5,2.6,"Evin giriş kamerası: 22:15’te bir kişi çıkıyor, 23:40’ta Can Berk’e benzeyen biri tekrar giriyor, 00:20’de çıkıyor.",null,"tablet"],
+["A5","Gelen kutusu e-postası",130,-10,2.6,"Maktulün e-postasında ihale rakibinden sert bir mesaj var. Ancak gönderen olay gecesi yurt dışında; mesajın olayla bağlantısı kurulamıyor.",null,"laptop"]];
 let DOSYA=`<h2>Vaka dosyası</h2>
 <p><b>Maktul:</b> Ahmet Yılmaz (45), yapay zekâ tabanlı savunma sanayii yazılımları geliştiren bir şirketin kurucu ortağı ve baş mühendisi.</p>
 <p><b>Olay yeri:</b> Evinin 3. katındaki çalışma odası. Pencereler içeriden mandallı, giriş kapısı çelik kilitli.</p>
@@ -58,11 +62,11 @@ let Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirlenemez"
 ["Kapı",["İçeriden kilitliydi, zorla açıldı","Dışarıdan anahtarla kilitlenmişti"],1],
 ["Olayda rolü olan kişi(ler)",["Yalnızca Melis","Yalnızca Can Berk","Melis ve Can Berk","Kimse"],2],
 ["Ölümden sonra ceset yer değiştirdi mi?",["Evet","Hayır"],0]];
-let ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
+let ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (giriş kamerası, kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
 // Sorgu: [şüpheli,[[soru,cevap,gerekli delil kodu]]]
 let SORGU=[["Melis Yılmaz",[["Gece ne yaptınız?","Kahveyi yapıp eşime verdim, sonra yatağıma çekildim.",""],["Masadaki kahve fincanını kim götürdü?","Ben… yani götürmüş olabilirim. Tam hatırlamıyorum, ‘hiç çıkmadım’ demiştim.","A2"],["Kilitte zorlanma izi yok; kapıyı nasıl açtık dediniz?","Hizmetli yardım etti… Kapı belki kilitli değildi. Bilmiyorum.","C1"]]],
-["Can Berk",[["Evden ne zaman ayrıldınız?","22:15’te, sözleşmeyi imzalar imzalamaz.",""],["Sözleşme zaman damgası 23:45 görünüyor.","Sistem gecikmeli işlemiş olmalı.","D2"],["Kapı kolunda parmak izin çıktı.","Eski ziyaretlerden kalmıştır.","C2"],["Çöpteki kadehte DNA’n var.","…Bir avukatla konuşmak istiyorum.","C4"]]]];
-let RUB=[["Sahnelenmiş cinayet / intihar değil",/sahne|intihar de|cinayet/i],["Solak maktul ve sağ el çelişkisi",/solak/i],["GSR (atış artığı) yok",/gsr|atış artığı/i],["Ölüm lekeleri / ceset taşınması",/leke|taşın|yer değiş/i],["Kapı dışarıdan kilitli",/dışarıdan|anahtar/i],["Can Berk’i bağlayan izler (kolu, kadeh, imza)",/parmak|dna|kadeh|23:45|zaman damgası/i],["Sedatif / kahve",/zolpidem|uyku|sedatif|kahve/i]];
+["Can Berk",[["Evden ne zaman ayrıldınız?","22:15’te, sözleşmeyi imzalar imzalamaz.",""],["Sözleşme zaman damgası 23:45 görünüyor.","Sistem gecikmeli işlemiş olmalı.","D2"],["Kapı kolunda parmak izin çıktı.","Eski ziyaretlerden kalmıştır.","C2"],["Çöpteki kadehte DNA’n var.","…Bir avukatla konuşmak istiyorum.","C4"],["Kamera 23:40’ta eve tekrar girdiğini gösteriyor.","…Yalnızca konuşmaya gelmiştim.","D3"]]]];
+let RUB=[["Sahnelenmiş cinayet / intihar değil",/sahne|kurgu|intihar\s*değil|intihar\s*de|cinayet|öldürül/i],["Solak maktul ve sağ el çelişkisi",/solak|sol\s*el/i],["GSR (atış artığı) yok",/gsr|atış\s*artığ|barut/i],["Ölüm lekeleri / ceset taşınması",/leke|livor|taşın|taşıd|yer\s*değiş|sırtüstü/i],["Kapı dışarıdan kilitli",/dışarıdan|dışardan|anahtar|kilitli/i],["Can Berk’i bağlayan izler (kolu, kadeh, imza)",/parmak|dna|kadeh|kamera|23:45|zaman\s*damga|can\s*berk/i],["Sedatif / kahve",/zolpidem|uyku|sedatif|ilaç|kahve/i]];
 const _P=new URLSearchParams(location.search),SC=_P.get('s')==='2'?'2':'1',LV=_P.get('l')==='z'?'z':'k';
 let TITLE='Çalışma Odasındaki Sır';
 const HINT={A:'Nesnelerin konumuna ve kime ait olduğuna bak.',B:'Yörünge ve açı neyi gösteriyor?',C:'İzlerin sahibini ve zamanını karşılaştır.',D:'Zaman damgalarını ifadelerle karşılaştır.'};
@@ -74,7 +78,10 @@ H=[["A1","Belgedeki imza",-30,-20,2.2,"Burs onay belgesinin altındaki imza mavi
 ["C2","Çöp kutusu",-90,-40,2.5,"Çöp kutusunda buruşturulmuş bir kâğıt var.","UV ışığında kâğıtta aynı imzanın defalarca denendiği görülüyor. Kenarda Elif Kara’nın öğrenci numarası yazılı.","bin"],
 ["D1","Fotokopi makinesi kaydı",-70,-12,2.3,"14 Ekim 18:42’de ofis kullanıcı kodu 07 ile 1 sayfa çıktı alınmış. Kod 07 memur Okan Demir’e ait.",null,"tablet"],
 ["D2","Kapı kartı dökümü",-110,0,2.6,"18:30–19:10 arasında ofise yalnızca iki giriş var: memurun kartı ve temizlik görevlisinin kartı.",null,"tablet"],
-["D3","Bilgisayar dosya kaydı",150,-10,2.8,"Belge dosyası 18:35’te memurun hesabından oluşturulmuş. Dr. Aksoy o gün şehir dışında bir konferansta.",null,"laptop"]];
+["D3","Bilgisayar dosya kaydı",150,-10,2.8,"Belge dosyası 18:35’te memurun hesabından oluşturulmuş. Dr. Aksoy o gün şehir dışında bir konferansta.",null,"laptop"],
+["A5","Dr. Aksoy’un takvimi",60,-22,2.3,"Takvimde 14 Ekim 08:00–20:00 konferans görünüyor; otel girişi aynı gün 21:10’da yapılmış.",null,"paper"],
+["D4","Temizlik görevlisi ifadesi",-150,-8,2.6,"Temizlik görevlisi, 18:50’de ofisten çıkarken Okan Demir’i bilgisayar başında gördüğünü, dolaba hiç dokunmadığını söylüyor.",null,"tablet"],
+["C3","Elif’in başvuru dosyası",175,-15,2.6,"Elif Kara’nın başvuru dosyası eksiksiz ve burs şartlarını gerçekten karşılıyor; sahte belgeye ihtiyacı olmayabilir. Bu tek başına onu aklamaz.",null,"paper"]];
 DOSYA=`<h2>Vaka dosyası</h2>
 <p><b>Olay:</b> Fen Fakültesi Öğrenci İşleri ofisinde, bir burs onay belgesi komisyon başkanı Dr. Selin Aksoy’un imzasıyla düzenlenmiş. Dr. Aksoy belgeyi hiç imzalamadığını söylüyor.</p>
 <p><b>Tarih:</b> Belgenin üzerindeki tarih 14 Ekim 2026. Dr. Aksoy o gün şehir dışında konferanstaydı.</p>
@@ -92,10 +99,10 @@ Q=[["Belge gerçek mi?",["Gerçek, Dr. Aksoy imzalamış","Sahte"],1],
 ["Belgeyi hazırlayan kişi",["Dr. Selin Aksoy","Okan Demir","Elif Kara","Belirlenemez"],1],
 ["Dolap kilidi zorlanmış mı?",["Evet, zorlanmış","Hayır, anahtarla açılmış"],1],
 ["Elif Kara’nın rolü",["Belgeyi kendisi sahteledi","Rolü kesin kanıtlanamıyor, ek inceleme gerekir","Hiçbir ilgisi yok"],1]];
-ZINCIR="Belge sahtedir: imza mavi mürekkepli ve baskısı farklı, Dr. Aksoy da o gün şehir dışındaydı. Belge 14 Ekim 18:30–19:10 arasında ofiste hazırlanmış (kart dökümü, bilgisayar ve fotokopi kaydı memurun kodu ve hesabıyla). Dolapta zorlanma yok, anahtar yalnızca memurda ve başkanda; kalem ve parmak izi memuru işaret ediyor. Çöp kutusundaki imza denemeleri ve öğrenci numarası notu Elif Kara ile bir bağlantıyı düşündürür, ancak rolü bu delillerle kanıtlanamaz, ek inceleme gerekir.";
-SORGU=[["Okan Demir",[["Akşam ofiste miydiniz?","Kısa süre kaldım, sadece birkaç evrak.",""],["Fotokopi kaydı kodunuzla 18:42’de çıkmış.","Kodumu başkası kullanmış olabilir.","D1"],["Belgedeki mürekkep sizin kalemle aynı türde.","Mavi kalem herkeste var.","A3"],["Dolabın anahtarı kimde?","…Yalnızca bende ve başkanda.","C1"]]],
-["Elif Kara",[["Belgeyi kim getirdi?","Bir arkadaşım. Adını söylemek istemiyorum.",""],["Çöpteki kâğıtta öğrenci numaran var.","Notlarımı atmış olabilirim ama imzayı ben denemedim.","C2"]]]];
-RUB=[["Belgenin sahte olduğu",/sahte/i],["Mavi mürekkep / kalem / baskı farkı",/mavi|mürekkep|kalem|baskı/i],["Kod, kart veya fotokopi kaydı",/kod|kart|kayıt|fotokopi|bilgisayar/i],["Dolap kilidi / anahtar",/dolap|anahtar|kilit/i],["Elif’in rolünün kanıtlanamaması",/kanıtlan|ek inceleme|kesin/i]]}
+ZINCIR="Belge sahtedir: imza mavi mürekkepli ve baskısı farklı, Dr. Aksoy da o gün şehir dışındaydı. Belge 14 Ekim 18:30–19:10 arasında ofiste hazırlanmış (kart dökümü, bilgisayar ve fotokopi kaydı memurun kodu ve hesabıyla; temizlik görevlisi de memuru bilgisayar başında gördü). Dolapta zorlanma yok, anahtar yalnızca memurda ve başkanda; kalem ve parmak izi memuru işaret ediyor. Çöp kutusundaki imza denemeleri ve öğrenci numarası notu Elif Kara ile bir bağlantıyı düşündürür, ancak rolü bu delillerle kanıtlanamaz, ek inceleme gerekir.";
+SORGU=[["Okan Demir",[["Akşam ofiste miydiniz?","Kısa süre kaldım, sadece birkaç evrak.",""],["Fotokopi kaydı kodunuzla 18:42’de çıkmış.","Kodumu başkası kullanmış olabilir.","D1"],["Belgedeki mürekkep sizin kalemle aynı türde.","Mavi kalem herkeste var.","A3"],["Dolabın anahtarı kimde?","…Yalnızca bende ve başkanda.","C1"],["Temizlik görevlisi sizi 18:50’de bilgisayar başında gördü.","Evrak işleri yapıyordum, hepsi bu.","D4"]]],
+["Elif Kara",[["Belgeyi kim getirdi?","Bir arkadaşım. Adını söylemek istemiyorum.",""],["Çöpteki kâğıtta öğrenci numaran var.","Notlarımı atmış olabilirim ama imzayı ben denemedim.","C2"],["Başvurun eksiksizmiş, belgeye neden ihtiyaç vardı?","Bilmiyorum, arkadaşım acele ettirdi.","C3"]]]];
+RUB=[["Belgenin sahte olduğu",/sahte|taklit|sahtecilik/i],["Mavi mürekkep / kalem / baskı farkı",/mavi|mürekkep|kalem|baskı|imza/i],["Kod, kart veya fotokopi kaydı",/kod|kart|kayıt|fotokopi|bilgisayar|temizlik|görevli|takvim/i],["Dolap kilidi / anahtar",/dolap|anahtar|kilit/i],["Elif’in rolünün kanıtlanamaması",/kanıtlan|ek\s*inceleme|kesin\s*değil|kesin\s*delil/i]]}
 const $=id=>document.getElementById(id),Rd=Math.PI/180;
 const BK='ars'+SC+LV;let best=null;try{best=localStorage.getItem(BK)}catch(e){}
 $('msg').textContent=best?'En iyi puanın: '+best+' / 100':'';
@@ -106,7 +113,7 @@ const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(65,innerWidth/inne
 const ren=new THREE.WebGLRenderer({canvas:$('c'),alpha:true,antialias:false});
 ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);
 function tex(t,col){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
-g.fillStyle=col;g.globalAlpha=.9;g.beginPath();g.arc(64,64,56,0,7);g.fill();g.globalAlpha=1;
+g.fillStyle=col;g.globalAlpha=.9;const k=t[0];g.beginPath();if(k==='B')g.rect(12,12,104,104);else if(k==='C'){g.moveTo(64,6);g.lineTo(122,116);g.lineTo(6,116);g.closePath()}else if(k==='D'){g.moveTo(64,6);g.lineTo(122,64);g.lineTo(64,122);g.lineTo(6,64);g.closePath()}else g.arc(64,64,56,0,7);g.fill();g.globalAlpha=1;
 g.lineWidth=8;g.strokeStyle='#fff';g.stroke();g.fillStyle='#fff';g.font='bold 52px sans-serif';
 g.textAlign='center';g.textBaseline='middle';g.fillText(t,64,68);return new THREE.CanvasTexture(c)}
 const sp=[],seen=new Set(),uvd=new Set();let line=null;
@@ -143,7 +150,7 @@ const z=new THREE.Vector3(0,0,1),eu=new THREE.Euler(),q1=new THREE.Quaternion(-M
 function orient(){if(tv||!ang)return;eu.set(ang.beta*Rd,(ang.alpha-a0)*Rd,-ang.gamma*Rd,'YXZ');
 cam.quaternion.setFromEuler(eu).multiply(q1);
 cam.quaternion.multiply(q0.setFromAxisAngle(z,-(screen.orientation?screen.orientation.angle:(window.orientation||0))*Rd))}
-(function loop(){requestAnimationFrame(loop);orient();ren.render(scene,cam)})();
+(function loop(){requestAnimationFrame(loop);orient();const T=Date.now()/300;sp.forEach((s,i)=>{s.material.opacity=seen.has(i)?.6:.75+.25*Math.sin(T+i)});ren.render(scene,cam)})();
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
 let ended=false,labOk=false;const NEED=4;
 function hud(){const el=Math.floor((Date.now()-t0)/1000),s=LV==='z'?Math.max(0,600-el):el;if(LV==='z'&&!ended&&run&&el>=600){ended=true;$('fin').click()}
@@ -153,7 +160,7 @@ $('pt').textContent=h[0]+' – '+h[1];
 $('pi').textContent=h[5]+(uvd.has(i)?'\n\n'+h[6]:'')+(LV==='k'?'\n\nİpucu: '+HINT[h[0][0]]:'');
 say(h[1]+'. '+h[5]+(uvd.has(i)?' '+h[6]:''));
 $('uv').style.display=(h[6]&&!uvd.has(i))?'inline-block':'none';
-sp[i].material.map=tex(h[0],'#546e7a');sp[i].material.needsUpdate=true;
+sp[i].material.map=tex(h[0]+'✓','#546e7a');sp[i].material.needsUpdate=true;
 if(h[0]==='B1')laser();$('panel').style.display='block';hud()}
 const rc=new THREE.Raycaster();
 $('c').addEventListener('click',ev=>{if(!run)return;
@@ -172,6 +179,7 @@ if(mm){ms.style.display='block';ms.textContent='Ölçüm modu: iki delile sıray
 $('bv').onclick=()=>{tv=!tv;$('bv').textContent=tv?'AR':'Üstten';grid.visible=tv;$('v').style.display=tv?'none':'block';
 if(tv){cam.position.set(0,11,0);cam.up.set(0,0,-1);cam.lookAt(0,0,0);setK(3.5)}
 else{cam.position.set(0,0,0);cam.up.set(0,1,0);setK(1)}};
+$('bz').onclick=()=>document.body.classList.toggle('big');
 $('bal').onclick=()=>{if(ang){a0=ang.alpha;beep(500)}};
 $('bn').onclick=()=>{nar=!nar;$('bn').textContent=nar?'🔊':'🔇';if(!nar)try{speechSynthesis.cancel()}catch(e){}};
 function ov(html){const o=$('ov2');o.innerHTML=html;o.style.display='flex';return o}
@@ -185,6 +193,8 @@ const lock=q[2]&&!seenCode(q[2]);return '<button class="l" '+(lock?'style="opaci
 else if(t===2){h+='<h2>Delil defteri</h2>'+(seen.size?[...seen].map(i=>'<div class="a"><b>'+H[i][0]+' '+H[i][1]+':</b> '+H[i][5]+(uvd.has(i)?' '+H[i][6]:'')+'</div>').join(''):'<p>Henüz delil incelenmedi.</p>')}
 else h+=DOSYA;ov(h+closeBtn())}
 function ask(key,k,j){const q=SORGU[k][1][j];if(q[2]&&!seenCode(q[2])){beep(200);return}asked.add(key);beep(440);dosya(1)}
+const TOUR=[['1/3 Odayı tara','Telefonu yavaşça çevir; işaretlere dokunarak delili incele. Şekil türü verir: ● daire A eşyalar, ■ kare B balistik, ▲ üçgen C izler ve kilitler, ◆ eşkenar dörtgen D kayıtlar. Yanıp sönenler henüz incelenmemiştir.'],['2/3 Araçların','UV/Luminol gizli izleri gösterir. Ölç iki delil arası mesafeyi verir. Üstten odanın planını açar. Hizala işaretler kayarsa yönü sıfırlar. A+ yazıyı büyütür.'],['3/3 Çözüm','Dosya’dan vakayı, sorguyu ve defteri aç; sorular ilgili delili bulunca açılır. 4 delil incelenince Adli Tıp/Lab raporu hazır olur. Bazı deliller seni yanıltabilir. Hazır olunca Bitir ile raporunu yaz.']];
+function tour(n){if(n>=TOUR.length)return dosya(0);ov('<h2>'+TOUR[n][0]+'</h2><p>'+TOUR[n][1]+'</p><button onclick="tour('+(n+1)+')">'+(n<2?'İleri':'Vakaya başla')+'</button>')}
 $('bf').onclick=()=>dosya(0);
 $('ba').onclick=()=>{if(seen.size<NEED&&!labOk){beep(200);return ov('<h2>Rapor hazır değil</h2><p>Laboratuvar sonuçları için en az '+NEED+' delil incele (şu an '+seen.size+').</p>'+closeBtn())}labOk=true;ov(OTOPSI+closeBtn())};
 $('stt').textContent=TITLE;$('ss').value=SC;$('sl').value=LV;
@@ -196,7 +206,7 @@ const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){m.tex
 catch(e){m.textContent='Sensör hatası: '+e.message;return}
 try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
 $('v').srcObject=s;await $('v').play()}catch(e){m.textContent='Kamera hatası: '+e.name;return}
-$('start').style.display='none';$('hud').style.display='flex';t0=Date.now();run=true;hud();setInterval(()=>run&&hud(),1000);dosya(0)};
+$('start').style.display='none';$('hud').style.display='flex';t0=Date.now();run=true;hud();setInterval(()=>run&&hud(),1000);tour(0)};
 $('fin').onclick=()=>{ended=true;$('panel').style.display='none';
 const o=ov('<h2>Sonuç raporu</h2>'+Q.map((q,k)=>'<label>'+q[0]+'<select id="q'+k+'"><option value="">Seç</option>'+q[1].map((x,j)=>'<option value="'+j+'">'+x+'</option>').join('')+'</select></label>').join('')
 +'<label>Mantıksal zincirin (gerekçe: hangi delil neyi gösteriyor?)<textarea id="tx" rows="6"></textarea></label><button id="sub">Raporu gönder</button> '+closeBtn());
