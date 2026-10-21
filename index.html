@@ -1,66 +1,120 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kamera ve Sensör Testi</title>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Çalışma Odasındaki Sır</title>
 <style>
-  html,body{margin:0;height:100%;background:#000;color:#fff;font-family:sans-serif}
-  video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover}
-  #panel{position:fixed;left:0;right:0;top:0;padding:12px;background:rgba(0,0,0,.6);font-size:14px}
-  #btn{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-       padding:18px 28px;font-size:20px;border:0;border-radius:12px;background:#1e88e5;color:#fff}
-</style>
-</head>
-<body>
-<video id="v" playsinline muted autoplay></video>
-<div id="panel">Hazır. "Testi Başlat" düğmesine bas.</div>
-<button id="btn">Testi Başlat</button>
-
+html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-family:sans-serif}
+video,#c{position:fixed;inset:0;width:100%;height:100%}video{object-fit:cover}
+#hud{position:fixed;top:0;left:0;right:0;display:none;justify-content:space-between;align-items:center;padding:6px 8px;padding-top:calc(6px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.55);font-size:14px}
+button{font-size:15px;border:0;border-radius:10px;padding:9px 13px;background:#1e88e5;color:#fff}
+#hud button{padding:6px 9px;font-size:13px}button.g{background:#2e7d32}button.r{background:#757575}
+#panel{position:fixed;left:0;right:0;bottom:0;display:none;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));background:rgba(20,20,20,.95);border-radius:16px 16px 0 0}
+#panel h3{margin:0 0 6px}#pi{margin:0 0 12px;line-height:1.4;white-space:pre-line}
+.ov{position:fixed;inset:0;display:flex;flex-direction:column;gap:10px;padding:18px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.88);overflow:auto;box-sizing:border-box;line-height:1.4;font-size:15px}
+.ov h2{margin:0}label{display:block}select,textarea{width:100%;font-size:16px;margin-top:4px;box-sizing:border-box}
+table{border-collapse:collapse}td,th{border:1px solid #888;padding:5px;vertical-align:top;font-size:14px}
+</style></head><body>
+<video id="v" playsinline muted autoplay></video><canvas id="c"></canvas>
+<div id="hud"><span id="st"></span><span><button id="bf">Dosya</button> <button id="ba">Adli Tıp</button> <button id="fin">Bitir</button></span></div>
+<div id="panel"><h3 id="pt"></h3><p id="pi"></p><button id="uv" class="g">UV / Luminol ile incele</button> <button id="px" class="r">Kapat</button></div>
+<div id="start" class="ov" style="justify-content:center">
+<h2>Çalışma Odasındaki Sır</h2>
+<p>Bu vaka, kişiler ve olaylar tamamen kurgusaldır; eğitim amaçlıdır.</p>
+<p>Telefonu yavaşça çevirerek odayı tara. Harf-numaralı noktalara dokunarak delilleri incele. <b>Dosya</b> düğmesinden vaka bilgisine ve ifadelere, <b>Adli Tıp</b> düğmesinden otopsi raporuna ulaşabilirsin. Sonunda <b>Bitir</b> ile sonuç raporunu doldur.</p>
+<button id="go">Başla</button><p id="msg"></p></div>
+<div id="ov2" class="ov" style="display:none"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const panel = document.getElementById('panel');
-const btn = document.getElementById('btn');
-const video = document.getElementById('v');
-const log = [];
-function say(t){ log.push(t); panel.innerHTML = log.join('<br>'); }
-
-btn.addEventListener('click', async () => {
-  btn.style.display = 'none';
-  log.length = 0;
-
-  // 1) Sensör izni (iPhone için dokunma içinde istenmeli)
-  try {
-    if (typeof DeviceOrientationEvent !== 'undefined' &&
-        typeof DeviceOrientationEvent.requestPermission === 'function') {
-      const r = await DeviceOrientationEvent.requestPermission();
-      say('Sensör izni: ' + r);
-    } else {
-      say('Sensör izni: gerekmiyor (Android/diğer)');
-    }
-  } catch (e) { say('Sensör izni HATA: ' + e.message); }
-
-  // 2) Kamera
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' } }, audio: false
-    });
-    video.srcObject = stream;
-    await video.play();
-    say('Kamera: AÇIK');
-  } catch (e) { say('Kamera HATA: ' + e.name + ' - ' + e.message); }
-
-  // 3) Sensör değerleri
-  let n = 0;
-  const base = log.slice();
-  window.addEventListener('deviceorientation', ev => {
-    if (++n % 5) return;
-    const f = x => (x == null ? 'yok' : x.toFixed(0));
-    panel.innerHTML = base.join('<br>') +
-      '<br>alfa: ' + f(ev.alpha) + ' | beta: ' + f(ev.beta) + ' | gama: ' + f(ev.gamma) +
-      '<br>Telefonu çevirdikçe sayılar değişmeli.';
-  });
-  setTimeout(() => { if (n === 0) say('Sensör verisi gelmedi!'); }, 2000);
-});
-</script>
-</body>
-</html>
+const LC={A:'#1565c0',B:'#c62828',C:'#2e7d32',D:'#ef6c00'};
+// [kod, ad, azimut, yükseklik, uzaklık, bilgi, gizli(UV/Luminol)]
+const H=[
+["A1","Silah ve sağ el",-20,-20,2.2,"9 mm çapında tabanca, maktulün sağ elinin altında duruyor."],
+["A2","Masadaki eşyalar",0,-15,2.4,"Kahve fincanı, kalemlik, not defteri ve bilgisayar faresi masanın sol tarafında.\nSağlık kaydı notu: maktul solaktır."],
+["A3","Mektup",20,-20,2.2,"Maktulün önünde, eski bir daktiloyla yazılmış ve altına ıslak imza atılmış bir mektup var. Maktul yapay zekâ yazılımları geliştiren bir mühendis."],
+["A4","İmza ve kalem",40,-12,2.3,"AR incelemesinde imzanın mavi tükenmez kalemle atıldığı görülüyor. Masadaki kalem siyah mürekkepli."],
+["B1","Duvardaki mermi deliği",160,8,3,"Sandalyenin arkasındaki duvarda. Kırmızı çizgi yörüngeyi gösteriyor. Giriş açısı arkadan ve yaklaşık 15° yukarıdan aşağı hesaplanıyor; maktulün oturduğu pozisyonda kendi kol uzunluğuyla bu açıyı sağlaması mümkün görünmüyor."],
+["C1","Kapı kilidi",90,-5,3,"Eşi kapıyı zorlayıp kırdığını söylüyor. Kilit dillerinde mekanik zorlanma ya da kırılma yok. Kapı pürüzsüzce dışarıdan anahtarla kilitlenmiş."],
+["C2","Kapının iç kolu",110,-12,3,"Kapının iç kolu.","UV modunda latent parmak izi görünüyor: Can Berk."],
+["C3","Silah kabzası",-45,-25,2.2,"Silah üzerinde yalnızca maktulün parmak izi var. Atış artığı panelinde (antimon, baryum, kurşun) maktulün ellerinde GSR bulunamadı."],
+["C4","Çöp kutusu",-90,-40,2.5,"Peçeteye sarılmış, kırık bir viski kadehi var.","Kadeh kenarında parlayan tükürük izi var; DNA analizi Can Berk ile %99,9 eşleşiyor."],
+["D1","Laptop kayıtları",-65,-15,2.2,"Kapalı laptopun log kaydı: ölümünden hemen önce dışarıdaki bilinmeyen bir sunucuya (IP) büyük bir veri transferi yapılmış, hemen ardından loglar silinmeye çalışılmış."],
+["D2","Hisse devri sözleşmesi",-80,0,2.5,"Dijital hisse devri sözleşmesinin imza zaman damgası: gece 23:45."]];
+const DOSYA=`<h2>Vaka dosyası</h2>
+<p><b>Maktul:</b> Ahmet Yılmaz (45), yapay zekâ tabanlı savunma sanayii yazılımları geliştiren bir şirketin kurucu ortağı ve baş mühendisi.</p>
+<p><b>Olay yeri:</b> Evinin 3. katındaki çalışma odası. Pencereler içeriden mandallı, giriş kapısı çelik kilitli.</p>
+<p><b>İhbar:</b> 10 Ekim 2026, 09:00.</p>
+<p><b>İlk beyan (eşi Melis Yılmaz):</b> Sabah 08:30 sularında kocasının odasından tek el silah sesi duymuş, kapının içeriden kilitli olduğunu görmüş. Alt kattaki hizmetliyle kapıyı zorlayarak/kırarak girmiş ve eşini masasında ölü bulmuş.</p>
+<p><b>İlk görsel durum:</b> Maktul masasında dik oturuyor. Sağ elinin altında 9 mm tabanca var. Önünde daktiloyla yazılmış, ıslak imzalı bir mektup duruyor. Olay ilk bakışta ‘kapalı oda intiharı’ olarak kaydedilmiş.</p>
+<table><tr><th>Şüpheli</th><th>İlişkisi</th><th>İfadesi</th></tr>
+<tr><td>Melis Yılmaz</td><td>Maktulün eşi</td><td>“Eşim şirketteki yeni gizli ihale süreci yüzünden çok gergindi. Gece 23:00’te bana kahve yapıp odasına çekildi. Sabah silah sesine kadar hiç yukarı çıkmadım.”</td></tr>
+<tr><td>Can Berk</td><td>Şirket ortağı</td><td>“Ahmet şirketteki tüm hisselerini bana devretmek istiyordu. Olay gecesi 22:00’de evine gittim, sözleşmeyi imzaladık ve 22:15’te evden ayrıldım. Ölümüyle bir ilgim yok.”</td></tr></table>`;
+const OTOPSI=`<h2>Adli Tıp Raporu</h2>
+<p><b>Ölüm zamanı:</b> Rektal sıcaklık ve göz içi potasyum düzeyine göre ölüm gece 23:30 – 00:30 arasında gerçekleşmiş.</p>
+<p><b>Toksikoloji:</b> Kanda yüksek, ölümcül oranda zolpidem (güçlü uyku hapı / sedatif) bulundu. Maktul vurulmadan önce bilincini kaybetmiş olabilir.</p>
+<p><b>Ölüm lekeleri (livor mortis):</b> Sırt bölgesinde sabitlenmiş. Maktul ise sandalyede dik oturur pozisyonda bulundu.</p>`;
+const Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirlenemez"],1],
+["Ölüm zamanı",["Sabah 08:30","Gece 23:30 – 00:30","Sabah 07:00 – 08:00"],1],
+["Kapı",["İçeriden kilitliydi, zorla açıldı","Dışarıdan anahtarla kilitlenmişti"],1],
+["Olayda rolü olan kişi(ler)",["Yalnızca Melis","Yalnızca Can Berk","Melis ve Can Berk","Kimse"],2],
+["Ölümden sonra ceset yer değiştirdi mi?",["Evet","Hayır"],0]];
+const ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
+const $=id=>document.getElementById(id),Rd=Math.PI/180;
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,50);
+const ren=new THREE.WebGLRenderer({canvas:$('c'),alpha:true,antialias:false});
+ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);
+function tex(t,col){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+g.fillStyle=col;g.globalAlpha=.9;g.beginPath();g.arc(64,64,56,0,7);g.fill();g.globalAlpha=1;
+g.lineWidth=8;g.strokeStyle='#fff';g.stroke();g.fillStyle='#fff';g.font='bold 52px sans-serif';
+g.textAlign='center';g.textBaseline='middle';g.fillText(t,64,68);return new THREE.CanvasTexture(c)}
+const sp=[],seen=new Set(),uvd=new Set();let autop=false,line=null;
+H.forEach((h,i)=>{const az=h[2]*Rd,el=h[3]*Rd,d=h[4];
+const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(h[0],LC[h[0][0]]),depthTest:false}));
+s.position.set(d*Math.cos(el)*Math.sin(az),d*Math.sin(el),-d*Math.cos(el)*Math.cos(az));
+s.scale.setScalar(d*.16);s.userData.i=i;scene.add(s);sp.push(s)});
+function laser(){if(line)return;const a=sp[4].position,t=sp[1].position;
+line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,t]),new THREE.LineBasicMaterial({color:0xff0000,depthTest:false}));scene.add(line)}
+let a0=null,ang=null,t0=0,run=false,sel=-1;
+addEventListener('deviceorientation',e=>{if(e.alpha==null)return;if(a0===null)a0=e.alpha;ang=e});
+const z=new THREE.Vector3(0,0,1),eu=new THREE.Euler(),q1=new THREE.Quaternion(-Math.sqrt(.5),0,0,Math.sqrt(.5)),q0=new THREE.Quaternion();
+function orient(){if(!ang)return;eu.set(ang.beta*Rd,(ang.alpha-a0)*Rd,-ang.gamma*Rd,'YXZ');
+cam.quaternion.setFromEuler(eu).multiply(q1);
+cam.quaternion.multiply(q0.setFromAxisAngle(z,-(screen.orientation?screen.orientation.angle:(window.orientation||0))*Rd))}
+(function loop(){requestAnimationFrame(loop);orient();ren.render(scene,cam)})();
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+function hud(){const s=Math.floor((Date.now()-t0)/1000);
+$('st').textContent='⏱ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+' | '+seen.size+'/'+H.length}
+function show(i){sel=i;const h=H[i];seen.add(i);
+$('pt').textContent=h[0]+' – '+h[1];
+$('pi').textContent=h[5]+(uvd.has(i)?'\n\n'+h[6]:'');
+$('uv').style.display=(h[6]&&!uvd.has(i))?'inline-block':'none';
+sp[i].material.map=tex(h[0],'#546e7a');sp[i].material.needsUpdate=true;
+if(i===4)laser();$('panel').style.display='block';hud()}
+const rc=new THREE.Raycaster();
+$('c').addEventListener('click',ev=>{if(!run)return;
+rc.setFromCamera({x:ev.clientX/innerWidth*2-1,y:-(ev.clientY/innerHeight)*2+1},cam);
+const h=rc.intersectObjects(sp);if(h.length)show(h[0].object.userData.i)});
+$('px').onclick=()=>{$('panel').style.display='none';sel=-1};
+$('uv').onclick=()=>{uvd.add(sel);show(sel)};
+function ov(html){const o=$('ov2');o.innerHTML=html;o.style.display='flex';return o}
+function closeBtn(){return '<button class="r" onclick="document.getElementById(\'ov2\').style.display=\'none\'">Kapat</button>'}
+$('bf').onclick=()=>ov(DOSYA+closeBtn());
+$('ba').onclick=()=>{autop=true;ov(OTOPSI+closeBtn())};
+$('go').onclick=async()=>{const m=$('msg');
+try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){m.textContent='Sensör izni verilmedi.';return}}}
+catch(e){m.textContent='Sensör hatası: '+e.message;return}
+try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+$('v').srcObject=s;await $('v').play()}catch(e){m.textContent='Kamera hatası: '+e.name;return}
+$('start').style.display='none';$('hud').style.display='flex';t0=Date.now();run=true;hud();setInterval(()=>run&&hud(),1000);ov(DOSYA+closeBtn())};
+$('fin').onclick=()=>{$('panel').style.display='none';
+const o=ov('<h2>Sonuç raporu</h2>'+Q.map((q,k)=>'<label>'+q[0]+'<select id="q'+k+'"><option value="">Seç</option>'+q[1].map((x,j)=>'<option value="'+j+'">'+x+'</option>').join('')+'</select></label>').join('')
++'<label>Mantıksal zincirin (gerekçe)<textarea id="tx" rows="6"></textarea></label><button id="sub">Raporu gönder</button> '+closeBtn());
+$('sub').onclick=()=>{if(!confirm('Raporu göndermek istiyor musun?'))return;run=false;
+const s=Math.floor((Date.now()-t0)/1000);let ok=0,det='';
+Q.forEach((q,k)=>{const v=$('q'+k).value;if(v!==''&&+v===q[2])ok++;else det+='<br>• '+q[0]+': '+q[1][q[2]]});
+const sc=seen.size*5+ok*9;const tx=$('tx').value;
+o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s%60+' sn<br>İncelenen delil: '+seen.size+' / '+H.length+'<br>Adli tıp raporuna bakıldı mı: '+(autop?'evet':'hayır')+'<br>Doğru cevap: '+ok+' / '+Q.length+'<br><b>Puan: '+sc+' / 100</b></p>'
++(det?'<p><b>Doğru cevaplar (yanlış/boş bıraktıkların):</b>'+det+'</p>':'')
++'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><button onclick="location.reload()">Yeniden başla</button>';
+document.getElementById('mine').textContent=tx||'(boş)'}};
+</script></body></html>
