@@ -74,7 +74,7 @@ const RUB=[["Sahnelenmiş cinayet / intihar değil",/sahne|kurgu|intihar\s*deği
 const LV=new URLSearchParams(location.search).get('l')==='z'?'z':'k';
 const HINT={A:'Nesnelerin konumuna ve kime ait olduğuna bak.',B:'Yörünge ve açı neyi gösteriyor?',C:'İzlerin sahibini ve zamanını karşılaştır.',D:'Zaman damgalarını ifadelerle karşılaştır.'};
 const ASK_NAME=new URLSearchParams(location.search).get('ad')==='1';
-const FORM={url:'',kod:'',cins:'',ad:'',ozet:'',ger:''}; // Google Forms bağlantısı Adım 6b'de doldurulacak
+const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSciox3LZK37U64ayMO2WxdIrYSD0h9bQvxaoa7E8N80Q2Yz5A/formResponse',kod:'entry.877854408',cins:'entry.1451065917',ad:'entry.1408635772',ozet:'entry.1136127145',ger:'entry.611246461'}; // Google Form: Adli AR Veri
 const TA=[["Ölümden sonra kanın yer çekimiyle vücudun alt bölgelerinde birikip morumsu leke yapmasına ne denir?",["Rigor mortis","Livor mortis","Algor mortis","Otoliz"],1],
 ["Atış artığı (GSR) analizi neyi araştırır?",["Parmak izini","DNA profilini","Mürekkep türünü","Barut kalıntısını (antimon, baryum, kurşun)"],3],
 ["Latent parmak izi ne demektir?",["Çıplak gözle görülen iz","Kana bulaşmış iz","Çıplak gözle görülmeyen, özel yöntemle ortaya çıkarılan iz","Ayakkabı izi"],2],
@@ -95,7 +95,7 @@ function postTest(cb){runTest(FAB==='A'?TB:TA,'Son test',cb,n=>POST=n)}
 async function sendData(oz,ger){const el=$('snd'),row={kod:ID.kod,cins:ID.cins,ad:ID.ad,ozet:oz,ger:ger};
 const copy='<textarea rows="5" readonly style="width:100%;box-sizing:border-box">'+[ID.kod,ID.cins,ID.ad,oz].join('|')+'</textarea>';
 if(!FORM.url||!FORM.kod){el.innerHTML='Form henüz bağlı değil. Bu satırı kopyalayıp araştırmacıya ilet:<br>'+copy;return}
-const b=new URLSearchParams();b.set(FORM.kod,row.kod);b.set(FORM.cins,row.cins);if(ASK_NAME&&FORM.ad)b.set(FORM.ad,row.ad);b.set(FORM.ozet,row.ozet);b.set(FORM.ger,row.ger);
+const b=new URLSearchParams();b.set(FORM.kod,row.kod);b.set(FORM.cins,row.cins||'Belirtmek İstemiyorum');if(ASK_NAME&&FORM.ad)b.set(FORM.ad,row.ad);b.set(FORM.ozet,row.ozet);b.set(FORM.ger,row.ger);
 try{await fetch(FORM.url,{method:'POST',mode:'no-cors',body:b});el.textContent='Sonuçların gönderildi (tarayıcı onay veremez; araştırmacı Forms’ta kontrol eder). Teşekkürler!'}
 catch(e){el.innerHTML='Gönderilemedi (internet?). Bu satırı kopyalayıp araştırmacıya ilet:<br>'+copy}}
 const $=id=>document.getElementById(id),Rd=Math.PI/180;
