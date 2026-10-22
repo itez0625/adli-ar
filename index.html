@@ -269,9 +269,9 @@ async function enter(){if(busy||KM)return;busy=true;kmsg('Kart modu açılıyor.
  try{if(tv)$('bv').click();
   const s=$('v').srcObject;if(s)s.getTracks().forEach(t=>t.stop());$('v').style.display='none';
   fr=document.createElement('iframe');fr.allow='camera';
-  fr.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:-1;pointer-events:none;background:#000';
+  fr.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none;background:#000';
   fr.srcdoc='<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}</style></head><body><scr'+'ipt>('+inner.toString()+')()</scr'+'ipt></body></html>';
-  document.body.appendChild(fr);toCard();KM=true;found=false;last=null;$('bk').classList.add('on');
+  document.body.insertBefore(fr,$('c'));toCard();KM=true;found=false;last=null;$('bk').classList.add('on');
  }catch(e){kmsg('Kart modu açılamadı: '+(e.message||e),4000);await exit()}
  busy=false}
 async function exit(){if(!KM&&!fr)return;if(KM)fromCard();KM=false;if(fr){fr.remove();fr=null}last=null;
