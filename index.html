@@ -23,7 +23,7 @@ body.big .ov,body.big #panel,body.big #ms{font-size:19px}body.big td,body.big th
 <div id="start" class="ov" style="justify-content:center">
 <h2>Çalışma Odasındaki Sır</h2>
 <p>Bu vaka, kişiler ve olaylar tamamen kurgusaldır; eğitim amaçlıdır.</p>
-<p>Telefonu yavaşça çevirerek odayı tara, harf-numaralı noktalara dokun. <b>Dosya</b> düğmesinde vaka bilgisi, <b>sorgu</b> ve <b>defter</b> var; sorgu soruları ilgili delili incelediğinde açılır. Adli Tıp raporu yeterli delil incelenince hazır olur. İşaretler kayarsa <b>Hizala</b> ile ekranın ortasını odanın önüne çevirip sıfırla. <b>Bitir</b> ile raporu doldur.</p>
+<p>Telefonu yavaşça çevirerek odayı tara, harf-numaralı noktalara dokun. <b>Dosya</b> düğmesinde vaka bilgisi, <b>sorgu</b> ve <b>defter</b> var; sorgu soruları ilgili delili incelediğinde açılır. Adli Tıp raporu yeterli delil incelenince hazır olur. İşaretler kayarsa <b>Hizala</b> ile ekranın ortasını odanın önüne çevirip sıfırla. <b>Kart</b> düğmesi, hedef kart varsa işaretleri kartın etrafına sabitler. <b>Bitir</b> ile raporu doldur.</p>
 <label>Öğrenci kodu <input id="kod" maxlength="12" autocomplete="off" style="width:100%;font-size:16px;box-sizing:border-box;margin-top:4px"></label>
 <label>Cinsiyet (isteğe bağlı) <select id="cin"><option value="">Belirtmek istemiyorum</option><option>Kadın</option><option>Erkek</option></select></label>
 <label id="adw" style="display:none">Ad Soyad <input id="ad" maxlength="60" autocomplete="off" style="width:100%;font-size:16px;box-sizing:border-box;margin-top:4px"></label>
@@ -196,7 +196,7 @@ const lock=q[2]&&!seenCode(q[2]);return '<button class="l" '+(lock?'style="opaci
 else if(t===2){h+='<h2>Delil defteri</h2>'+(seen.size?[...seen].map(i=>'<div class="a"><b>'+H[i][0]+' '+H[i][1]+':</b> '+H[i][5]+(uvd.has(i)?' '+H[i][6]:'')+'</div>').join(''):'<p>Henüz delil incelenmedi.</p>')}
 else h+=DOSYA;ov(h+closeBtn())}
 function ask(key,k,j){const q=SORGU[k][1][j];if(q[2]&&!seenCode(q[2])){beep(200);return}asked.add(key);beep(440);dosya(1)}
-const TOUR=[['1/3 Odayı tara','Telefonu yavaşça çevir; işaretlere dokunarak delili incele. Şekil türü verir: ● daire A eşyalar, ■ kare B balistik, ▲ üçgen C izler ve kilitler, ◆ eşkenar dörtgen D kayıtlar. Yanıp sönenler henüz incelenmemiştir.'],['2/3 Araçların','UV/Luminol gizli izleri gösterir. Ölç iki delil arası mesafeyi verir. Üstten odanın planını açar. Hizala işaretler kayarsa yönü sıfırlar. A+ yazıyı büyütür.'],['3/3 Çözüm','Dosya’dan vakayı, sorguyu ve defteri aç; sorular ilgili delili bulunca açılır. 4 delil incelenince Adli Tıp raporu hazır olur. Bazı deliller seni yanıltabilir. Hazır olunca Bitir ile raporunu yaz.']];
+const TOUR=[['1/3 Odayı tara','Telefonu yavaşça çevir; işaretlere dokunarak delili incele. Şekil türü verir: ● daire A eşyalar, ■ kare B balistik, ▲ üçgen C izler ve kilitler, ◆ eşkenar dörtgen D kayıtlar. Yanıp sönenler henüz incelenmemiştir.'],['2/3 Araçların','UV/Luminol gizli izleri gösterir. Ölç iki delil arası mesafeyi verir. Üstten odanın planını açar. Hizala işaretler kayarsa yönü sıfırlar. Kart, hedef kartın etrafına sabitler. A+ yazıyı büyütür.'],['3/3 Çözüm','Dosya’dan vakayı, sorguyu ve defteri aç; sorular ilgili delili bulunca açılır. 4 delil incelenince Adli Tıp raporu hazır olur. Bazı deliller seni yanıltabilir. Hazır olunca Bitir ile raporunu yaz.']];
 function tour(n){if(n>=TOUR.length)return dosya(0);ov('<h2>'+TOUR[n][0]+'</h2><p>'+TOUR[n][1]+'</p><button onclick="tour('+(n+1)+')">'+(n<2?'İleri':'Vakaya başla')+'</button>')}
 $('bf').onclick=()=>dosya(0);
 $('ba').onclick=()=>{if(seen.size<NEED&&!labOk){beep(200);return ov('<h2>Rapor hazır değil</h2><p>Laboratuvar sonuçları için en az '+NEED+' delil incele (şu an '+seen.size+').</p>'+closeBtn())}labOk=true;ov(OTOPSI+closeBtn())};
@@ -227,4 +227,71 @@ const fin2=()=>{o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s
 +'<table>'+rows+'</table><p><b>Gerekçende yakalanan bulgular:</b><br>'+RUB.map(r=>(hit.includes(r)?'✅ ':'⬜ ')+r[0]).join('<br>')+'</p>'
 +'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><p id="snd">Gönderiliyor...</p><button onclick="location.reload()">Yeniden başla</button>';
 document.getElementById('mine').textContent=tx||'(boş)';sendData([new Date().toISOString(),'AR',LV,FAB,s,seen.size,asked.size,labOk?1:0,ok,hit.length,sc,PRE,POST,cev].join(';'),tx)};postTest(fin2)}};
-</script></body></html>
+</script>
+<script>
+/* Kart modu (MindAR) eklentisi v1: HUD'a "Kart" düğmesi ekler, delilleri hedef kartın etrafına sabitler */
+(function(){
+const $=id=>document.getElementById(id);
+const MS=new THREE.Matrix4().makeRotationX(Math.PI/2).scale(new THREE.Vector3(.5,.5,.5));
+let KM=false,busy=false,fr=null,kg=null,last=null,grps=[],sv=null,found=false,tm=0;
+function inner(){
+ const SRC={
+  m1:['https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js'],
+  af:['https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js','https://cdnjs.cloudflare.com/ajax/libs/aframe/1.2.0/aframe.min.js'],
+  m2:['https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js']};
+ const MIND='https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card-example/card.mind';
+ const load=u=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(u);document.head.appendChild(s)});
+ const first=async n=>{for(const u of SRC[n]){try{await load(u);return}catch(e){}}throw new Error(n)};
+ const send=m=>parent.postMessage(Object.assign({k:1},m),'*');
+ (async()=>{
+  try{await first('m1');await first('af');await first('m2')}catch(e){send({err:'Kütüphaneler yüklenemedi (internet?)'});return}
+  document.body.innerHTML='<a-scene mindar-image="imageTargetSrc: '+MIND+';" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"><a-camera position="0 0 0" look-controls="enabled: false"></a-camera><a-entity id="ktg" mindar-image-target="targetIndex: 0"></a-entity></a-scene>';
+  const sc=document.querySelector('a-scene'),tg=document.getElementById('ktg');
+  sc.addEventListener('arReady',()=>send({ready:1}));
+  sc.addEventListener('arError',()=>send({err:'Kamera/MindAR başlatılamadı (izin? HTTPS?)'}));
+  (function tick(){requestAnimationFrame(tick);if(!sc.camera)return;const o=tg.object3D;
+   send({f:o.visible?1:0,p:Array.from(sc.camera.projectionMatrix.elements),m:Array.from(o.matrix.elements)})})();
+ })();
+}
+const kms=document.createElement('div');
+kms.style.cssText='position:fixed;left:10px;right:10px;top:calc(56px + env(safe-area-inset-top,0px));z-index:5;padding:8px;border-radius:10px;background:rgba(0,0,0,.75);text-align:center;display:none;pointer-events:none;color:#fff;font:14px sans-serif';
+document.body.appendChild(kms);
+function kmsg(t,ms){clearTimeout(tm);kms.textContent=t;kms.style.display=t?'block':'none';if(t&&ms)tm=setTimeout(()=>{kms.style.display='none'},ms)}
+function toCard(){kg=new THREE.Group();kg.matrixAutoUpdate=false;kg.visible=false;
+ grps=scene.children.filter(c=>c.isGroup);scene.add(kg);
+ sv={sy:sp.map(s=>s.position.y),gy:grps.map(g=>g.position.y)};
+ sp.forEach(s=>{s.position.y=.55;kg.add(s)});grps.forEach(g=>{g.position.y=0;kg.add(g)});
+ if(line)line.visible=false;if(mLine)mLine.visible=false;grid.visible=false}
+function fromCard(){
+ sp.forEach((s,i)=>{s.position.y=sv.sy[i];scene.add(s)});grps.forEach((g,i)=>{g.position.y=sv.gy[i];scene.add(g)});
+ scene.remove(kg);if(line)line.visible=true;if(mLine)mLine.visible=true}
+async function enter(){if(busy||KM)return;busy=true;kmsg('Kart modu açılıyor...');
+ try{if(tv)$('bv').click();
+  const s=$('v').srcObject;if(s)s.getTracks().forEach(t=>t.stop());$('v').style.display='none';
+  fr=document.createElement('iframe');fr.allow='camera';
+  fr.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;z-index:-1;pointer-events:none;background:#000';
+  fr.srcdoc='<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}</style></head><body><scr'+'ipt>('+inner.toString()+')()</scr'+'ipt></body></html>';
+  document.body.appendChild(fr);toCard();KM=true;found=false;last=null;$('bk').classList.add('on');
+ }catch(e){kmsg('Kart modu açılamadı: '+(e.message||e),4000);await exit()}
+ busy=false}
+async function exit(){if(!KM&&!fr)return;if(KM)fromCard();KM=false;if(fr){fr.remove();fr=null}last=null;
+ cam.updateProjectionMatrix();cam.quaternion.set(0,0,0,1);$('bk').classList.remove('on');kmsg('');
+ await new Promise(r=>setTimeout(r,400));
+ try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+  $('v').srcObject=s;$('v').style.display='block';await $('v').play()}catch(e){kmsg('Kamera hatası: '+e.name,4000)}}
+addEventListener('message',e=>{const d=e.data;if(!d||d.k!==1||!fr)return;
+ if(d.err){kmsg(d.err,5000);exit();return}
+ if(d.ready){kmsg('Hazır. Kartı kameraya göster.',4000);return}
+ if(d.p){last=d;if(d.f&&!found){found=true;kmsg('Kart bulundu',1500)}else if(!d.f&&found){found=false;kmsg('Kart görünmüyor: kameraya göster')}}});
+const _o=orient;
+orient=function(){if(!KM)return _o();if(!last||!last.p)return;
+ cam.position.set(0,0,0);cam.quaternion.set(0,0,0,1);
+ cam.projectionMatrix.fromArray(last.p);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();
+ kg.visible=!!last.f;if(last.f){kg.matrix.fromArray(last.m).multiply(MS);kg.matrixWorldNeedsUpdate=true}};
+const _m=measure;measure=function(i){if(KM&&mLine&&mLine.parent===kg)kg.remove(mLine);_m(i);if(KM&&mLine&&mLine.parent===scene)kg.add(mLine)};
+const _l=laser;laser=function(){_l();if(KM&&line&&line.parent===scene)kg.add(line)};
+$('fin').insertAdjacentHTML('beforebegin','<button id="bk">Kart</button> ');
+$('bk').onclick=()=>KM?exit():enter();
+})();
+</script>
+</body></html>
