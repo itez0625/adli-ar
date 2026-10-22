@@ -92,12 +92,20 @@ function runTest(arr,title,cb,set){ov('<h2>'+title+'</h2>'+arr.map((q,k)=>'<labe
 $('tb').onclick=()=>{let n=0;arr.forEach((q,k)=>{const v=$('t'+k).value;if(v!==''&&+v===q[2])n++});set(n);cb()}}
 function preTest(cb){runTest(FAB==='A'?TA:TB,'Ön test',cb,n=>PRE=n)}
 function postTest(cb){runTest(FAB==='A'?TB:TA,'Son test',cb,n=>POST=n)}
-async function sendData(oz,ger){const el=$('snd'),row={kod:ID.kod,cins:ID.cins,ad:ID.ad,ozet:oz,ger:ger};
+const QK='arq';let flushing=false;
+function qget(){try{return JSON.parse(localStorage.getItem(QK)||'[]')}catch(e){return[]}}
+function qset(a){try{localStorage.setItem(QK,JSON.stringify(a))}catch(e){}}
+async function post(r){const b=new URLSearchParams();b.set(FORM.kod,r.kod);b.set(FORM.cins,r.cins||'Belirtmek İstemiyorum');if(r.ad&&FORM.ad)b.set(FORM.ad,r.ad);b.set(FORM.ozet,r.ozet);b.set(FORM.ger,r.ger);await fetch(FORM.url,{method:'POST',mode:'no-cors',body:b})}
+async function flushQ(){const a=qget();if(flushing||!a.length||!FORM.url||!FORM.kod)return a.length;flushing=true;const rest=[];
+for(const r of a){try{await post(r)}catch(e){rest.push(r)}}qset(rest);flushing=false;return rest.length}
+async function sendData(oz,ger){const el=$('snd'),row={kod:ID.kod,cins:ID.cins,ad:ASK_NAME?ID.ad:'',ozet:oz,ger:ger};
 const copy='<textarea rows="5" readonly style="width:100%;box-sizing:border-box">'+[ID.kod,ID.cins,ID.ad,oz].join('|')+'</textarea>';
 if(!FORM.url||!FORM.kod){el.innerHTML='Form henüz bağlı değil. Bu satırı kopyalayıp araştırmacıya ilet:<br>'+copy;return}
-const b=new URLSearchParams();b.set(FORM.kod,row.kod);b.set(FORM.cins,row.cins||'Belirtmek İstemiyorum');if(ASK_NAME&&FORM.ad)b.set(FORM.ad,row.ad);b.set(FORM.ozet,row.ozet);b.set(FORM.ger,row.ger);
-try{await fetch(FORM.url,{method:'POST',mode:'no-cors',body:b});el.textContent='Sonuçların gönderildi (tarayıcı onay veremez; araştırmacı Forms’ta kontrol eder). Teşekkürler!'}
-catch(e){el.innerHTML='Gönderilemedi (internet?). Bu satırı kopyalayıp araştırmacıya ilet:<br>'+copy}}
+qset(qget().concat([row]));const left=await flushQ();
+if(!left){el.textContent='Sonuçların gönderildi (tarayıcı onay veremez; araştırmacı Forms’ta kontrol eder). Teşekkürler!';return}
+el.innerHTML='Şu an gönderilemedi (internet yok olabilir). Sonuçların bu telefonda saklandı; internete bağlanınca <button id="rt">Tekrar gönder</button> düğmesine bas ya da bu sayfayı yeniden aç.<br>Yedek satır:<br>'+copy;
+$('rt').onclick=async()=>{el.textContent='Gönderiliyor...';const l=await flushQ();el.textContent=l?'Hâlâ gönderilemedi, internet bağlantını kontrol et.':'Sonuçların gönderildi. Teşekkürler!'}}
+addEventListener('online',()=>{flushQ()});setTimeout(()=>{flushQ()},1500);
 const $=id=>document.getElementById(id),Rd=Math.PI/180;
 const BK='ars'+LV;let best=null;try{best=localStorage.getItem(BK)}catch(e){}
 $('msg').textContent=best?'En iyi puanın: '+best+' / 100':'';
