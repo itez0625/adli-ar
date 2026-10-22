@@ -31,6 +31,8 @@ body.big .ov,body.big #panel,body.big #ms{font-size:19px}body.big td,body.big th
 <label>Seviye <select id="sl"><option value="k">Kolay (ipuçlu)</option><option value="z">Zor (ipucu yok, 10 dk)</option></select></label><button id="go">Başla</button><p id="msg"></p></div>
 <div id="ov2" class="ov" style="display:none"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 <script>
 const LC={A:'#1565c0',B:'#c62828',C:'#2e7d32',D:'#ef6c00'};
 const H=[
@@ -227,6 +229,25 @@ const fin2=()=>{o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s
 +'<table>'+rows+'</table><p><b>Gerekçende yakalanan bulgular:</b><br>'+RUB.map(r=>(hit.includes(r)?'✅ ':'⬜ ')+r[0]).join('<br>')+'</p>'
 +'<p><b>Örnek akıl yürütme:</b><br>'+ZINCIR+'</p><p><b>Senin gerekçen:</b></p><p id="mine"></p><p id="snd">Gönderiliyor...</p><button onclick="location.reload()">Yeniden başla</button>';
 document.getElementById('mine').textContent=tx||'(boş)';sendData([new Date().toISOString(),'AR',LV,FAB,s,seen.size,asked.size,labOk?1:0,ok,hit.length,sc,PRE,POST,cev].join(';'),tx)};postTest(fin2)}};
+</script>
+<script>
+/* Gerçekçi 3B modeller (GLB). Yüklenemezse basit şekiller kalır. */
+(function(){
+if(!THREE.GLTFLoader)return;
+const MODEL={A1:['tabanca',.35],C3:['tabanca',.35],A2:['fincan',.22],A3:['mektup',.3],D2:['mektup',.3],A4:['kalem',.25],B1:['duvar',.9],B2:['pencere',.7],C1:['kapi',.9],C2:['kapi',.6],C4:['kadeh',.22],D1:['laptop',.38],A5:['laptop',.38],D3:['kamera',.3]};
+const NAMES={pencere:['pencere.glb','pencere.glb.glb']};
+ren.outputEncoding=THREE.sRGBEncoding;
+const _t=tex;tex=function(a,b){const t=_t(a,b);t.encoding=THREE.sRGBEncoding;return t};
+sp.forEach(s=>{if(s.material.map){s.material.map.encoding=THREE.sRGBEncoding;s.material.map.needsUpdate=true;s.material.needsUpdate=true}});
+scene.add(new THREE.HemisphereLight(0xffffff,0x777777,.7));
+const G=scene.children.filter(c=>c.isGroup),L=new THREE.GLTFLoader(),cache={};
+if(THREE.DRACOLoader){const d=new THREE.DRACOLoader();d.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.4.1/');L.setDRACOLoader(d)}
+function get(n){if(!cache[n]){cache[n]=new Promise((ok,no)=>{const u=(NAMES[n]||[n+'.glb']).slice();(function t(){const f=u.shift();if(!f)return no();L.load(f,g=>ok(g.scene),undefined,t)})()})}return cache[n]}
+H.forEach((h,i)=>{const m=MODEL[h[0]];if(!m||!G[i])return;
+ get(m[0]).then(src=>{const o=src.clone(true),b=new THREE.Box3().setFromObject(o),sz=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());
+  const k=m[1]/Math.max(sz.x,sz.y,sz.z,1e-6);o.scale.multiplyScalar(k);o.position.set(-c.x*k,-b.min.y*k,-c.z*k);
+  const w=new THREE.Group();w.add(o);while(G[i].children.length)G[i].remove(G[i].children[0]);G[i].add(w)}).catch(()=>{})});
+})();
 </script>
 <script>
 /* Kart modu (MindAR) eklentisi v1: HUD'a "Kart" düğmesi ekler, delilleri hedef kartın etrafına sabitler */
