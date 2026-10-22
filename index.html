@@ -68,7 +68,7 @@ const Q=[["Ölüm şekli",["İntihar","Sahnelenmiş cinayet","Kaza","Belirleneme
 ["Kapı",["İçeriden kilitliydi, zorla açıldı","Dışarıdan anahtarla kilitlenmişti"],1],
 ["Olayda rolü olan kişi(ler)",["Yalnızca Melis","Yalnızca Can Berk","Melis ve Can Berk","Kimse"],2],
 ["Ölümden sonra ceset yer değiştirdi mi?",["Evet","Hayır"],0]];
-const ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (giriş kamerası, kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır. Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
+const ZINCIR="Maktul intihar etmemiştir. Can Berk gece evde bulunmuş (giriş kamerası, kapı kolu, kadeh, 23:45 imza zaman damgası), maktulün sedatif almasında kahve yolu sorgulanmalıdır (zolpidem şişesi Melis Yılmaz adına, yedek anahtarda Melis’in izi var). Ölüm 23:30–00:30 arasında olmuş, ölüm lekeleri cesedin sabaha kadar sırtüstü beklediğini ve sabah masaya taşındığını gösteriyor. Kapı dışarıdan anahtarla kilitlenmiş; sağ elin altındaki silah, solak maktulle, masadaki sol yerleşimle, GSR yokluğuyla, daktilo ve renk farklı imzayla çelişiyor. Olay, eşin ve ortağın işbirliğiyle sahnelenmiş bir cinayet olarak değerlendirilir.";
 // Sorgu: [şüpheli,[[soru,cevap,gerekli delil kodu]]]
 const SORGU=[["Melis Yılmaz",[["Gece ne yaptınız?","Kahveyi yapıp eşime verdim, sonra yatağıma çekildim.",""],["Masadaki kahve fincanını kim götürdü?","Ben… yani götürmüş olabilirim. Tam hatırlamıyorum, ‘hiç çıkmadım’ demiştim.","A2"],["Kilitte zorlanma izi yok; kapıyı nasıl açtık dediniz?","Hizmetli yardım etti… Kapı belki kilitli değildi. Bilmiyorum.","C1"]]],
 ["Can Berk",[["Evden ne zaman ayrıldınız?","22:15’te, sözleşmeyi imzalar imzalamaz.",""],["Sözleşme zaman damgası 23:45 görünüyor.","Sistem gecikmeli işlemiş olmalı.","D2"],["Kapı kolunda parmak izin çıktı.","Eski ziyaretlerden kalmıştır.","C2"],["Çöpteki kadehte DNA’n var.","…Bir avukatla konuşmak istiyorum.","C4"],["Kamera 23:40’ta eve tekrar girdiğini gösteriyor.","…Yalnızca konuşmaya gelmiştim.","D3"]]]];
@@ -231,10 +231,29 @@ const fin2=()=>{o.innerHTML='<h2>Rapor</h2><p>Süre: '+Math.floor(s/60)+' dk '+s
 document.getElementById('mine').textContent=tx||'(boş)';sendData([new Date().toISOString(),'AR',LV,FAB,s,seen.size,asked.size,labOk?1:0,ok,hit.length,sc,PRE,POST,cev].join(';'),tx)};postTest(fin2)}};
 </script>
 <script>
+/* Yeni deliller: daktilo, şişe, kovan, ilaç, yedek anahtar, telefon */
+(function(){
+const NEW=[
+["A6","Daktilo",-150,-12,2.5,"Odadaki tek daktilo dolabın içinde, kapağı kapalı ve şeridi kurumuş. Mektubun bu odada yazılmadığını düşündürüyor.",null,"paper"],
+["A7","Viski şişesi",-150,-28,2.3,"Masanın altında yarısı boş bir viski şişesi var. Şişede yalnızca temizlik görevlisinin izleri çıktı; olayla bağlantısı kurulamıyor.",null,"bin"],
+["B3","Mermi kovanı",75,-30,2,"Kapıya yakın bir köşede mermi kovanı bulundu; maktulün oturduğu sandalyeden uzakta. Atışın oturulan yerden yapılmadığını düşündürebilir.",null,"pens"],
+["C5","İlaç şişesi",-105,-22,2.6,"Çekmecede boş bir zolpidem şişesi var. Etiketteki hasta adı: Melis Yılmaz.",null,"pens"],
+["C6","Yedek anahtar",150,-25,2.1,"Kapının yedek anahtarı alt kattaki anahtarlıkta asılı. Üzerinde Melis Yılmaz’ın parmak izi var.",null,"pens"],
+["D4","Maktulün telefonu",5,12,2.6,"Son arama 21:40’ta Can Berk’e (3 dk). 23:20’den sonra telefon hiç kullanılmamış, ekran kilidi hiç açılmamış.",null,"tablet"]];
+NEW.forEach(h=>{const i=H.length;H.push(h);const az=h[2]*Rd,el=h[3]*Rd,d=h[4];
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(h[0],LC[h[0][0]]),depthTest:false}));
+ s.position.set(d*Math.cos(el)*Math.sin(az),d*Math.sin(el),-d*Math.cos(el)*Math.cos(az));
+ s.scale.setScalar(d*.16);s.userData.i=i;scene.add(s);sp.push(s);
+ const g=P[h[7]]();g.position.copy(s.position);g.scale.setScalar(1.4);g.lookAt(0,g.position.y,0);scene.add(g);s.position.y+=.55});
+SORGU[0][1].push(["Zolpidem şişesi senin adına yazılmış.","Uykusuzluğum var, ilacı ben kullanıyorum… Eşim de bazen benimkinden alırdı.","C5"],["Yedek anahtarda parmak izin var.","Evin anahtarı, elbette dokunurum.","C6"]);
+SORGU[1][1].push(["Telefon kaydı 21:40’ta seninle konuştuğunu gösteriyor.","Evet, hisseler hakkında konuştuk. Bunu zaten söyledim.","D4"]);
+})();
+</script>
+<script>
 /* Gerçekçi 3B modeller (GLB). Yüklenemezse basit şekiller kalır. */
 (function(){
 if(!THREE.GLTFLoader)return;
-const MODEL={A1:['tabanca',.35],C3:['tabanca',.35],A2:['fincan',.22],A3:['mektup',.3],D2:['mektup',.3],A4:['kalem',.25],B1:['duvar',.9],B2:['pencere',.7],C1:['kapi',.9],C2:['kapi',.6],C4:['kadeh',.22],D1:['laptop',.38],A5:['laptop',.38],D3:['kamera',.3]};
+const MODEL={A1:['tabanca',.35],C3:['tabanca',.35],A2:['fincan',.22],A3:['mektup',.3],D2:['mektup',.3],A4:['kalem',.25],B1:['duvar',.9],B2:['pencere',.7],C1:['kapi',.9],C2:['kapi',.6],C4:['kadeh',.22],D1:['laptop',.38],A5:['laptop',.38],D3:['kamera',.3],A6:['daktilo',.4],A7:['sise',.3],B3:['kovan',.12],C5:['ilac',.15],C6:['anahtar',.15],D4:['telefon',.2]};
 const NAMES={pencere:['pencere.glb','pencere.glb.glb']};
 ren.outputEncoding=THREE.sRGBEncoding;
 const _t=tex;tex=function(a,b){const t=_t(a,b);t.encoding=THREE.sRGBEncoding;return t};
@@ -247,6 +266,17 @@ H.forEach((h,i)=>{const m=MODEL[h[0]];if(!m||!G[i])return;
  get(m[0]).then(src=>{const o=src.clone(true),b=new THREE.Box3().setFromObject(o),sz=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());
   const k=m[1]/Math.max(sz.x,sz.y,sz.z,1e-6);o.scale.multiplyScalar(k);o.position.set(-c.x*k,-b.min.y*k,-c.z*k);
   const w=new THREE.Group();w.add(o);while(G[i].children.length)G[i].remove(G[i].children[0]);G[i].add(w)}).catch(()=>{})});
+/* Oda dekoru: masa, sandalye, ceset, kedi, kitaplık. Ayar: boyut, x, z, dönüş (radyan), dikey kayma */
+const room=new THREE.Group();room.position.set(0,-1,1.2);scene.add(room);
+function put(n,size,x,z,ry,dy){get(n).then(src=>{const o=src.clone(true),b=new THREE.Box3().setFromObject(o),sz=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());
+ const k=size/Math.max(sz.x,sz.y,sz.z,1e-6);o.scale.multiplyScalar(k);o.position.set(-c.x*k,-b.min.y*k,-c.z*k);
+ const w=new THREE.Group();w.add(o);w.position.set(x,dy||0,z);w.rotation.y=ry||0;room.add(w)}).catch(()=>{})}
+put('masa',1.3,0,0,0);
+put('sandalye',.9,0,.75,Math.PI);
+put('ceset',1.3,0,.75,Math.PI,-.3);
+put('kitaplik',1.6,-1.5,-.2,Math.PI/2);
+put('kedi',.35,1.1,.3,-.6);
+(function f(){requestAnimationFrame(f);room.position.z=room.parent===scene?1.2:0})();
 })();
 </script>
 <script>
